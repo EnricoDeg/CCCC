@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 // Constructor
-CCCCt* CCCC_init(int glob, int nprocs_kernel);
+CCCCt* CCCC_init(MPI_Comm glob, int nprocs_kernel);
 
 // Destructor
 void CCCC_finalize(CCCCt* cccc);

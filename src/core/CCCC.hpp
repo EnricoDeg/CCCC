@@ -6,7 +6,7 @@ namespace DKRZ {
 
   class CCCC {
     public:
-    	CCCC(int glob, int nprocs_kernel);
+    	CCCC(MPI_Comm glob, int nprocs_kernel);
     	~CCCC();
     	int intercomm_create(int nmodel) const;
 

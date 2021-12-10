@@ -3,7 +3,7 @@
 
 namespace DKRZ {
     
-    CCCC::CCCC(int glob, int nprocs_kernel) {
+    CCCC::CCCC(MPI_Comm glob, int nprocs_kernel) {
     	// initialize YAXT library
     	m_yaxt.reset(new Yaxt(glob));
     	m_nprocs.push_back(nprocs_kernel);

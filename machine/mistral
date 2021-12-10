@@ -4,7 +4,7 @@ module add cmake/3.17.1-gcc-9.1.0
 module add gcc/6.4.0
 module add openmpi/2.0.2p2_hpcx-gcc64
 
-export YAXT_LIB=/work/bk0993/k202136/yaxt-0.9.0-gcc-openmpi2/lib
+export YAXT_ROOT=/work/bk0993/k202136/yaxt-0.9.0_g++_openmpi2
 export CCCC_DIR=${PWD}
 
 export LD_LYBRARY_PATH=${YAXT_LIB}:${LD_LYBRARY_PATH}

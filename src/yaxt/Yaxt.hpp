@@ -2,9 +2,9 @@
 
 #include <mpi.h>
 
-//extern "C"{
-//#include "yaxt.h"
-//}
+extern "C"{
+#include "yaxt.h"
+}
 
 
 namespace DKRZ {
@@ -12,7 +12,7 @@ namespace DKRZ {
  class Yaxt {
  public:
  	typedef std::shared_ptr<Yaxt> Ptr;
- 	Yaxt(int glob);
+ 	Yaxt(MPI_Comm glob);
  	~Yaxt();
  private:
 

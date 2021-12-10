@@ -2,12 +2,12 @@
 
 namespace DKRZ {
 
-Yaxt::Yaxt(int glob) {
-//	xt_initialize(glob);
+Yaxt::Yaxt(MPI_Comm glob) {
+	xt_initialize(glob);
 }
 
 Yaxt::~Yaxt() {
-//	xt_finalize();
+	xt_finalize();
 }
 
 }

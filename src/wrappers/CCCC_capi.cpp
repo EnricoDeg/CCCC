@@ -5,7 +5,7 @@
 using namespace std;
 
 namespace DKRZ {
-CCCCt* CCCC_init(int glob, int nprocs_kernel) {
+CCCCt* CCCC_init(MPI_Comm glob, int nprocs_kernel) {
     cout << "C API, CCCC_init" << endl;
     return new CCCC(glob, nprocs_kernel);
 }
