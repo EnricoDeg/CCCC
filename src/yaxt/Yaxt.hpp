@@ -14,8 +14,9 @@ namespace DKRZ {
  	typedef std::shared_ptr<Yaxt> Ptr;
  	Yaxt(MPI_Comm glob);
  	~Yaxt();
+        MPI_Comm glob();
  private:
-
+        MPI_Comm m_glob;
 
  };
 
