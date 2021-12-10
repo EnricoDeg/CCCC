@@ -18,7 +18,7 @@ void CCCC_finalize(CCCCt* cccc);
 
 // The const qualificators maps from the member function to pointers to the
 // class instances.
-int CCCC_intercomm_create(const CCCCt* cccc, int nmodel);
+int CCCC_intercomm_create(CCCCt* cccc, int nmodel, int nprocs);
 
 #ifdef __cplusplus
 }

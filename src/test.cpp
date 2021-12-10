@@ -10,7 +10,7 @@ int main(int argc, char **argv)
   std::shared_ptr<CCCC> ccm;
   ccm.reset(new CCCC(MPI_COMM_WORLD, 1));
 
-  int i = ccm->intercomm_create(1);
+  int i = ccm->intercomm_create(1, 1);
 
   ccm.reset();
 

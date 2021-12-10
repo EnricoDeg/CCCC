@@ -15,8 +15,8 @@ void CCCC_finalize(CCCCt* cccc){
     delete cccc;
 }
 
-int CCCC_intercomm_create(const CCCCt* cccc, int nmodel) {
+int CCCC_intercomm_create(CCCCt* cccc, int nmodel, int nprocs) {
 	cout << "C API, CCCC_intercomm_create" << endl;
-    return cccc->intercomm_create(nmodel);
+    return cccc->intercomm_create(nmodel, nprocs);
 }
 }

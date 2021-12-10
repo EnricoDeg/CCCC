@@ -48,11 +48,12 @@ contains ! Implementation of the functions. We just wrap the C function here.
         call cccc_finalize_c(this%ptr)
     end subroutine
 
-    integer function CCCC_intercomm_create(this, nmodel)
+    integer function CCCC_intercomm_create(this, nmodel, nprocs)
         implicit none
-        class(cccc), intent(in) :: this
+        class(cccc) :: this
         integer, intent(in) :: nmodel
-        CCCC_intercomm_create = CCCC_intercomm_create_c(this%ptr, nmodel)
+        integer, intent(in) :: nprocs
+        CCCC_intercomm_create = CCCC_intercomm_create_c(this%ptr, nmodel, nprocs)
     end function
 
 end module

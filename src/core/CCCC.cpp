@@ -14,7 +14,8 @@ namespace DKRZ {
     	m_yaxt.reset();
     }
 
-    int CCCC::intercomm_create(int nmodel) const {
+    int CCCC::intercomm_create(int nmodel, int nprocs) {
+        m_nprocs.push_back(nprocs);
         return 127;
     }
 

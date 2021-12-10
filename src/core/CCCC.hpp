@@ -8,7 +8,7 @@ namespace DKRZ {
     public:
     	CCCC(MPI_Comm glob, int nprocs_kernel);
     	~CCCC();
-    	int intercomm_create(int nmodel) const;
+    	int intercomm_create(int nmodel, int nprocs);
 
     protected:
     	Yaxt::Ptr m_yaxt;

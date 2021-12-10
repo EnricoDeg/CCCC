@@ -14,12 +14,13 @@ interface
         type(c_ptr), value :: cccc
     end subroutine
 
-    function CCCC_intercomm_create_c(cccc, nmodel) bind(C, name="CCCC_intercomm_create")
+    function CCCC_intercomm_create_c(cccc, nmodel, nprocs) bind(C, name="CCCC_intercomm_create")
         use iso_c_binding
         implicit none
         integer(c_int) :: CCCC_intercomm_create_c
-        type(c_ptr), intent(in), value :: cccc
+        type(c_ptr), value :: cccc
         integer(c_int), value :: nmodel
+        integer(c_int), value :: nprocs
     end function
 
 end interface
