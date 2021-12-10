@@ -1,0 +1,12 @@
+#!/bin/bash
+source machine/$1
+
+mkdir build
+cd build
+
+cmake -DCMAKE_INSTALL_PREFIX=${CCCC_DIR} \
+      -DCMAKE_BUILD_TYPE=Debug \
+      -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON ..
+make install
+cd ..
+rm -r build

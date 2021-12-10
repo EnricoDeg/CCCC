@@ -1,0 +1,8 @@
+#!/bin/bash
+export MPI_LIB=/usr/lib/x86_64-linux-gnu/openmpi/lib
+export YAXT_LIB=
+export CCCC_DIR="/home/enrico/Nextcloud/canard2.0"
+
+export LD_LYBRARY_PATH=${MPI_LIB}:${YAXT_LIB}
+export CXX=g++
+export FC=gfortran
