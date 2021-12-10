@@ -15,8 +15,10 @@ unset(directories)
 
 include_directories(${MPI_INCLUDE_PATH})
 include_directories(${CMAKE_BINARY_DIR})
+include_directories(${MPI_Fortran_INCLUDE_PATH})
+add_compile_options(${MPI_Fortran_COMPILE_FLAGS})
 
-set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/modules)
+#set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/modules)
 
 set(SOURCE_EXE  yaxt/Yaxt.cpp
                 core/CCCC.cpp
@@ -29,7 +31,7 @@ target_link_libraries(cccc ${MPI_LIBRARIES})
 
 add_executable(test test.f90)
 set_property(TARGET test PROPERTY LINKER_LANGUAGE Fortran)
-target_link_libraries (test cccc ${MPI_LIBRARIES})
+target_link_libraries (test cccc ${MPI_Fortran_LIBRARIES})
 
 # Install the library
 install (

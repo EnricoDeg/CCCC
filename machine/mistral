@@ -1,7 +1,10 @@
 #!/bin/bash
-export MPI_LIB=/usr/lib/x86_64-linux-gnu/openmpi/lib
-export YAXT_LIB=
-export CCCC_DIR="/home/enrico/Nextcloud/CCCC"
+module purge
+module add cmake/3.17.1-gcc-9.1.0
+module add gcc/6.4.0
+module add openmpi/2.0.2p2_hpcx-gcc64
 
-export LD_LYBRARY_PATH=${MPI_LIB}:${YAXT_LIB}
-export CXX=g++
+export YAXT_LIB=/work/bk0993/k202136/yaxt-0.9.0-gcc-openmpi2/lib
+export CCCC_DIR=${PWD}
+
+export LD_LYBRARY_PATH=${YAXT_LIB}:${LD_LYBRARY_PATH}
