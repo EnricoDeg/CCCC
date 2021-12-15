@@ -1,24 +1,42 @@
 #include <iostream>
 
 #include "CCCC/core/CCCC.hpp"
+#include "CCCC/grid/GridStruct.hpp"
 
 namespace DKRZ {
+
+    Grid_Backend choose_backend(std::string backend_name) {
+      if (backend_name == "structured") {
+        return CCCC_STRUCTURED;
+      }
+    }
+
+    Grid::Ptr create_backend(Grid_Backend backend) {
+
+      if (backend == CCCC_STRUCTURED) {
+        return Grid::Ptr(new GridStruct());
+      }
+    }
     
-    CCCC::CCCC(MPI_Comm glob, int nprocs_kernel) {
+    CCCC::CCCC(MPI_Comm glob, int nprocs_kernel, std::string backend_name) {
     	// initialize YAXT library
     	int world_rank;
     	m_yaxt.reset(new Yaxt(glob));
     	m_nprocs.push_back(nprocs_kernel);
         MPI_Comm_rank(glob, &world_rank);
         if (world_rank < nprocs_kernel) {
-            m_kernel_role = true;
-        } else {
             m_kernel_role = false;
+        } else {
+            m_kernel_role = true;
         }
         m_local_comm = MPI_COMM_NULL;
+        Grid_Backend backend = choose_backend(backend_name);
+        m_grid = create_backend(backend);
     }
 
     CCCC::~CCCC() {
+        // reset grid object pointer
+        m_grid.reset();
     	// finalize YAXT library
     	m_yaxt.reset();
     }
@@ -64,7 +82,7 @@ namespace DKRZ {
     }
 
     void CCCC:: intercomm_test() {
-        if (m_kernel_role) {
+        if (!m_kernel_role) {
             for (int i = 1; i < m_nprocs.size(); i++ ) {
                 MPI_Send(&i, 1, MPI_INT, 0, 0, m_intercomm[i-1]);
             }

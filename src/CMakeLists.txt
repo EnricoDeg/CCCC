@@ -3,10 +3,6 @@ find_package(MPI REQUIRED COMPONENTS Fortran)
 find_package(MPI REQUIRED COMPONENTS CXX)
 find_package(PkgConfig REQUIRED)
 
-# Find yaxt library
-#find_package (YAXT REQUIRED)
-#find_package (YAXT_C REQUIRED)
-
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/CCCC)
 
 subdirlist(directories ${CMAKE_CURRENT_SOURCE_DIR})
@@ -28,6 +24,8 @@ set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/modules)
 
 set(SOURCE_EXE  yaxt/Yaxt.cpp
                 core/CCCC.cpp
+                grid/Grid.cpp
+                grid/GridStruct.cpp
                 wrappers/CCCC_capi.cpp
                 wrappers/CCCC_mod.f90
                 )
