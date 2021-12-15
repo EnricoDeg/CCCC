@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 // Constructor
-CCCCt* CCCC_init(MPI_Comm glob, int nprocs_kernel);
+CCCCt* CCCC_init(MPI_Fint *glob, int nprocs_kernel, char* backend_name);
 
 // Destructor
 void CCCC_finalize(CCCCt* cccc);

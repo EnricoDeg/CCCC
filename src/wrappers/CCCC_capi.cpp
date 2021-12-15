@@ -5,9 +5,12 @@
 using namespace std;
 
 namespace DKRZ {
-CCCCt* CCCC_init(MPI_Comm glob, int nprocs_kernel) {
+CCCCt* CCCC_init(MPI_Fint *glob, int nprocs_kernel, char* backend_name) {
     cout << "C API, CCCC_init" << endl;
-    return new CCCC(glob, nprocs_kernel);
+    // needed convertions
+    string backend_name_cpp = backend_name;
+    MPI_Comm g = MPI_Comm_f2c(*glob);
+    return new CCCC(g, nprocs_kernel, backend_name_cpp);
 }
 
 void CCCC_finalize(CCCCt* cccc){

@@ -1,11 +1,12 @@
 ! C functions declaration
 interface
-    function CCCC_init_c(glob, nprocs_kernel) bind(C, name="CCCC_init")
+    function CCCC_init_c(glob, nprocs_kernel, backend) bind(C, name="CCCC_init")
         use iso_c_binding
         implicit none
         type(c_ptr) :: CCCC_init_c
-        integer(c_int), value :: glob
+        integer :: glob
         integer(c_int), value :: nprocs_kernel
+        character(kind=C_char), dimension(*) :: backend
     end function
 
     subroutine CCCC_finalize_c(cccc) bind(C, name="CCCC_finalize")

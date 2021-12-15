@@ -28,11 +28,22 @@ module libcccc
     end interface
 
 contains ! Implementation of the functions. We just wrap the C function here.
-    function CCCC_init(glob, nprocs_kernel)
+    function CCCC_init(glob, nprocs_kernel, backend)
         implicit none
         type(cccc) :: CCCC_init
-        integer, intent(in) :: glob, nprocs_kernel
-        cccc_init%ptr = CCCC_init_c(glob, nprocs_kernel)
+        integer :: glob
+        integer, intent(in) :: nprocs_kernel
+        character(len=*) :: backend
+
+        character(kind=C_char), dimension(len(backend)+1) :: c_backend
+        integer :: i
+
+        do i = 1, len(backend)
+          c_backend(i) = backend(i:i)
+        end do
+        c_backend(len(backend)+1) = c_null_char
+
+        cccc_init%ptr = CCCC_init_c(glob, nprocs_kernel, c_backend)
     end function
 
     subroutine CCCC_finalize(this)
