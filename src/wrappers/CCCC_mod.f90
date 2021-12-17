@@ -16,7 +16,9 @@ module libcccc
         procedure :: intercomm_create => CCCC_intercomm_create
         procedure :: start_concurrent => CCCC_start_concurrent
         procedure :: stop_concurrent  => CCCC_stop_concurrent
+        procedure :: execute          => CCCC_execute
         procedure :: has_kernel_role  => CCCC_has_kernel_role
+        procedure :: add_command      => CCCC_add_command
     end type
 
     ! This function acts as the constructor for cccc type
@@ -78,10 +80,27 @@ contains
         call CCCC_stop_concurrent_c(this%ptr, nmodel)
     end subroutine
 
+    subroutine CCCC_execute(this, nmodel, cmd_id)
+        implicit none
+        class(cccc) :: this
+        integer, intent(in) :: nmodel
+        integer, intent(in) :: cmd_id
+        call CCCC_execute_c(this%ptr, nmodel, cmd_id)
+    end subroutine 
+
     logical function CCCC_has_kernel_role(this)
         implicit none
         class(cccc) :: this
         CCCC_has_kernel_role = CCCC_has_kernel_role_c(this%ptr)
     end function
+
+    subroutine CCCC_add_command(this, func_ptr, nmodel, cmd_id)
+        implicit none
+        class(cccc) :: this
+        type (c_funptr), intent (in) :: func_ptr
+        integer, intent(in) :: nmodel
+        integer, intent(in) :: cmd_id
+        call CCCC_add_command_c(this%ptr, func_ptr, nmodel, cmd_id)
+    end subroutine
 
 end module

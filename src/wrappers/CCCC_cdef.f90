@@ -45,4 +45,21 @@ interface
         type(c_ptr), value :: cccc
     end function
 
+    subroutine CCCC_execute_c(cccc, nmodel, cmd_id) bind(C, name='CCCC_execute')
+        use iso_c_binding
+        implicit none
+        type(c_ptr), value :: cccc
+        integer(c_int), value :: nmodel
+        integer(c_int), value :: cmd_id
+    end subroutine
+
+    subroutine CCCC_add_command_c(cccc, func_ptr, nmodel, cmd_id) bind(C, name='CCCC_add_command')
+        use iso_c_binding
+        implicit none
+        type(c_ptr), value :: cccc
+        type (c_funptr), VALUE, intent (in) :: func_ptr
+        integer(c_int), value :: nmodel
+        integer(c_int), value :: cmd_id
+    end subroutine
+
 end interface

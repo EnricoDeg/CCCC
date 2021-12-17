@@ -32,6 +32,7 @@ namespace DKRZ {
         void add_command(void (*Func_ptr) (), int nmodel, int cmd_id);
         void start_concurrent(int nmodel);
         void stop_concurrent(int nmodel);
+        void execute(int nmodel, int cmd_id);
         void intercomm_test();
         bool has_kernel_role();
 

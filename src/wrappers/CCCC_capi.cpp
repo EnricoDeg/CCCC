@@ -32,6 +32,16 @@ namespace DKRZ {
         return cccc->stop_concurrent(nmodel);
     }
 
+    void CCCC_execute(CCCCt* cccc, int nmodel, int cmd_id) {
+        std::cout << "C API, CCCC_execute" << std::endl;
+        return cccc->execute(nmodel, cmd_id);
+    }
+
+    void CCCC_add_command(CCCCt* cccc, void (*Func_ptr) (), int nmodel, int cmd_id) {
+        std::cout << "C API, CCCC_add_command" << std::endl;
+        return cccc->add_command(Func_ptr, nmodel, cmd_id);
+    }
+
     bool CCCC_has_kernel_role(CCCCt* cccc) {
         return cccc->has_kernel_role();
     }

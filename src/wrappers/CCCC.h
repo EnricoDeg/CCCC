@@ -24,6 +24,13 @@ void CCCC_start_concurrent(CCCCt* cccc, int nmodel);
 // Stop concurrent execution
 void CCCC_stop_concurrent(CCCCt* cccc, int nmodel);
 
+// Execute a command on a stream
+void CCCC_execute(CCCCt* cccc, int nmodel, int cmd_id);
+
+// add command to a stream
+void CCCC_add_command(CCCCt* cccc, void (*Func_ptr) (), int nmodel, int cmd_id);
+
+// Return if procs has kernel role
 bool CCCC_has_kernel_role(CCCCt* cccc);
 
 #ifdef __cplusplus

@@ -94,6 +94,7 @@ namespace DKRZ {
     }
 
     void CCCC::intercomm_test() {
+
         if (!m_kernel_role) {
             for (int i = 1; i < m_nprocs.size(); i++ ) {
                 MPI_Send(&i, 1, MPI_INT, 0, 0, m_mpi->intercomm(i-1));
@@ -106,6 +107,12 @@ namespace DKRZ {
             std::cout << world_rank << ": i = " << i << std::endl;
         }
 
+    }
+
+    void CCCC::execute(int nmodel, int cmd_id) {
+        if (!m_kernel_role) {
+            m_mpi->send_cmd(nmodel, cmd_id);
+        }
     }
 
     bool CCCC::has_kernel_role() {
