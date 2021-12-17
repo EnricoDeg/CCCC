@@ -16,9 +16,16 @@ CCCCt* CCCC_init(MPI_Fint *glob, int nprocs_kernel, char* backend_name);
 // Destructor
 void CCCC_finalize(CCCCt* cccc);
 
-// The const qualificators maps from the member function to pointers to the
-// class instances.
+// Create intercommunicator for a stream (kernel)
 int CCCC_intercomm_create(CCCCt* cccc, int nmodel, int nprocs);
+
+// Start concurrent execution (infinite loop for kernel procs)
+void CCCC_start_concurrent(CCCCt* cccc, int nmodel);
+
+// Stop concurrent execution
+void CCCC_stop_concurrent(CCCCt* cccc, int nmodel);
+
+bool CCCC_has_kernel_role(CCCCt* cccc);
 
 #ifdef __cplusplus
 }

@@ -12,7 +12,13 @@ program test
     ! Create an object of type cccc
     f = cccc(MPI_COMM_WORLD, 1, trim(backend))
 
-    !i = f%intercomm_create(1, 1)
+    i = f%intercomm_create(1, 1)
+
+    call f%start_concurrent(1)
+    if (.not. f%has_kernel_role()) then
+      write(*,*) "Model procs print this string"
+    end if
+    call f%stop_concurrent(1)
 
     call f%finalize
 

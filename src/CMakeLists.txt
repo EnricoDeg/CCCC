@@ -23,6 +23,7 @@ add_compile_options(${MPI_Fortran_COMPILE_FLAGS})
 set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/modules)
 
 set(SOURCE_EXE  yaxt/Yaxt.cpp
+                mpi/CMPI.cpp
                 core/CCCC.cpp
                 grid/Grid.cpp
                 grid/GridStruct.cpp

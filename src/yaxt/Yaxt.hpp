@@ -1,4 +1,5 @@
 #include <memory>
+#include <map>
 
 #include <mpi.h>
 
@@ -9,15 +10,20 @@ extern "C"{
 
 namespace DKRZ {
 
- class Yaxt {
- public:
- 	typedef std::shared_ptr<Yaxt> Ptr;
- 	Yaxt(MPI_Comm glob);
- 	~Yaxt();
-        MPI_Comm glob();
- private:
-        MPI_Comm m_glob;
+  struct YaxtRedist {
+    Xt_redist redist_m2k;
+    Xt_redist redist_k2m;
+  };
 
- };
+  class Yaxt {
+  public:
+  typedef std::shared_ptr<Yaxt> Ptr;
+  Yaxt(MPI_Comm glob);
+  ~Yaxt();
+  MPI_Comm glob();
+  private:
+  MPI_Comm m_glob;
+  Xt_idxlist m_empty_redist;
+  };
 
 }

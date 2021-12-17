@@ -24,4 +24,25 @@ interface
         integer(c_int), value :: nprocs
     end function
 
+    subroutine CCCC_start_concurrent_c(cccc, nmodel) bind(C, name="CCCC_start_concurrent")
+        use iso_c_binding
+        implicit none
+        type(c_ptr), value :: cccc
+        integer(c_int), value :: nmodel
+    end subroutine
+
+    subroutine CCCC_stop_concurrent_c(cccc, nmodel) bind(C, name="CCCC_stop_concurrent")
+        use iso_c_binding
+        implicit none
+        type(c_ptr), value :: cccc
+        integer(c_int), value :: nmodel
+    end subroutine
+
+    function CCCC_has_kernel_role_c(cccc) bind (C, name='CCCC_has_kernel_role')
+        use iso_c_binding
+        implicit none
+        logical(c_bool) :: CCCC_has_kernel_role_c
+        type(c_ptr), value :: cccc
+    end function
+
 end interface

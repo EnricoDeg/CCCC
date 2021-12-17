@@ -5,6 +5,7 @@ namespace DKRZ {
 Yaxt::Yaxt(MPI_Comm glob) {
     xt_initialize(glob);
     m_glob = glob;
+    m_empty_redist = xt_idxempty_new();
 }
 
 Yaxt::~Yaxt() {
