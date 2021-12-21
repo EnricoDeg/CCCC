@@ -19,6 +19,10 @@ module libcccc
         procedure :: execute          => CCCC_execute
         procedure :: has_kernel_role  => CCCC_has_kernel_role
         procedure :: add_command      => CCCC_add_command
+        procedure :: add_field        => CCCC_add_field
+        procedure :: add_variable     => CCCC_add_variable
+        procedure :: exchange_k2m     => CCCC_exchange_k2m
+        procedure :: exchange_m2k     => CCCC_exchange_m2k
     end type
 
     ! This function acts as the constructor for cccc type
@@ -27,6 +31,7 @@ module libcccc
     end interface
 
 contains
+
     function CCCC_init(glob, nprocs_kernel, backend)
         implicit none
         type(cccc) :: CCCC_init
@@ -101,6 +106,52 @@ contains
         integer, intent(in) :: nmodel
         integer, intent(in) :: cmd_id
         call CCCC_add_command_c(this%ptr, func_ptr, nmodel, cmd_id)
+    end subroutine
+
+    subroutine CCCC_add_field(this, data, nlv, nmodel, m2k)
+        implicit none
+        class(cccc) :: this
+        real(c_double), dimension(*), intent(inout) :: data
+        integer, intent(in) :: nlv
+        integer, intent(in) :: nmodel
+        logical, intent(in) :: m2k
+        integer :: cond
+        if (m2k .eqv. .false.) then
+            cond = 0
+        else
+            cond = 1
+        end if
+        call CCCC_add_field_c(this%ptr, data, nlv, nmodel, cond)
+    end subroutine
+
+    subroutine CCCC_add_variable(this, data, count, nmodel, m2k)
+        implicit none
+        class(cccc) :: this
+        real(c_double), dimension(*), intent(inout) :: data
+        integer, intent(in) :: count
+        integer, intent(in) :: nmodel
+        logical, intent(in) :: m2k
+        integer :: cond
+        if (m2k .eqv. .false.) then
+            cond = 0
+        else
+            cond = 1
+        end if
+        call CCCC_add_variable_c(this%ptr, data, count, nmodel, cond)
+    end subroutine
+
+    subroutine CCCC_exchange_k2m(this, nmodel)
+        implicit none
+        class(cccc) :: this
+        integer, intent(in) :: nmodel
+        call CCCC_exchange_k2m_c(this%ptr, nmodel)
+    end subroutine
+
+    subroutine CCCC_exchange_m2k(this, nmodel)
+        implicit none
+        class(cccc) :: this
+        integer, intent(in) :: nmodel
+        call CCCC_exchange_m2k_c(this%ptr, nmodel)
     end subroutine
 
 end module

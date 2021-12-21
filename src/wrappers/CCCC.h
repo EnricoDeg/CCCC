@@ -33,6 +33,18 @@ void CCCC_add_command(CCCCt* cccc, void (*Func_ptr) (), int nmodel, int cmd_id);
 // Return if procs has kernel role
 bool CCCC_has_kernel_role(CCCCt* cccc);
 
+// add field to a stream
+void CCCC_add_field(CCCCt* cccc, double *data, int nlv, int nmodel, int m2k);
+
+// add variable to a stream
+void CCCC_add_variable(CCCCt* cccc, double *data, int count, int nmodel, int m2k);
+
+// send fields and variables to model
+void CCCC_exchange_k2m(CCCCt* cccc, int nmodel);
+
+// send fields and variables to a kernel
+void CCCC_exchange_m2k(CCCCt* cccc, int nmodel);
+
 #ifdef __cplusplus
 }
 #endif

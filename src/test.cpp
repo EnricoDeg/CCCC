@@ -13,7 +13,6 @@ int main(int argc, char **argv)
 
   int i = ccm->intercomm_create(1, 1);
   i = ccm->intercomm_create(2, 1);
-  ccm->intercomm_test();
 
   ccm.reset();
 

@@ -62,4 +62,38 @@ interface
         integer(c_int), value :: cmd_id
     end subroutine
 
+    subroutine CCCC_add_field_c(cccc, data, nlv, nmodel, m2k) bind(C, name='CCCC_add_field')
+        use iso_c_binding
+        implicit none
+        type(c_ptr), value :: cccc
+        real(c_double), dimension(*), intent(inout) :: data
+        integer(c_int), value :: nlv
+        integer(c_int), value :: nmodel
+        integer(c_int), value :: m2k
+    end subroutine CCCC_add_field_c
+
+    subroutine CCCC_add_variable_c(cccc, data, count, nmodel, m2k) bind(C, name='CCCC_add_variable')
+        use iso_c_binding
+        implicit none
+        type(c_ptr), value :: cccc
+        real(c_double), dimension(*), intent(inout) :: data
+        integer(c_int), value :: count
+        integer(c_int), value :: nmodel
+        integer(c_int), value :: m2k
+    end subroutine CCCC_add_variable_c
+
+    subroutine CCCC_exchange_k2m_c(cccc, nmodel) bind(C, name='CCCC_exchange_k2m')
+        use iso_c_binding
+        implicit none
+        type(c_ptr), value :: cccc
+        integer(c_int), value :: nmodel
+    end subroutine CCCC_exchange_k2m_c
+
+    subroutine CCCC_exchange_m2k_c(cccc, nmodel) bind(C, name='CCCC_exchange_m2k')
+        use iso_c_binding
+        implicit none
+        type(c_ptr), value :: cccc
+        integer(c_int), value :: nmodel
+    end subroutine CCCC_exchange_m2k_c
+
 end interface
