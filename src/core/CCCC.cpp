@@ -78,6 +78,8 @@ namespace DKRZ {
     }
 
     void CCCC::add_command(void (*Func_ptr) (), int nmodel, int cmd_id) {
+        if (cmd_id < 0)
+            handle_error("command ID can not be negative");
         CmdType c;
         c.cmd = Func_ptr;
         c.cmd_id = cmd_id;
@@ -183,12 +185,20 @@ namespace DKRZ {
     void CCCC::execute(int nmodel, int cmd_id) {
         if (!m_kernel_role) {
             m_mpi->send_cmd(nmodel, cmd_id);
+        } else {
+            handle_error("kernels procs should not call execute() function");
         }
     }
 
     // Return useful info
     bool CCCC::has_kernel_role() {
         return m_kernel_role;
+    }
+
+    // Error handler
+    void CCCC::handle_error(std::string msg) {
+        std::cerr << "CCCC Error: " << msg << std::endl;
+        std::exit (EXIT_FAILURE);
     }
     
 }

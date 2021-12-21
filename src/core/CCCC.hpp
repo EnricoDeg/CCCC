@@ -70,5 +70,6 @@ namespace DKRZ {
         void send_data(int nmodel, bool cond);
         void recv_data(int nmodel, bool cond);
         void exchange_field(int nmodel, bool cond);
+        void handle_error(std::string msg);
   };
 }
