@@ -28,6 +28,7 @@ namespace DKRZ {
             icolor = 2;
             ilocal_root = 0;
             iremote_root = 0;
+            m_mymodel = nmodel;
         } else {
             icolor = 3;
             ilocal_root = 0;
@@ -39,7 +40,7 @@ namespace DKRZ {
             MPI_Intercomm_create(local_comm, ilocal_root,
                                  m_glob_comm, iremote_root,
                                  0, &intercomm);
-            m_intercomm.push_back(intercomm);
+            m_intercomm[nmodel] = intercomm;
             if (m_local_comm == MPI_COMM_NULL) {
                 m_local_comm = local_comm;
                 MPI_Comm_rank(m_local_comm, &m_local_rank);
@@ -48,24 +49,42 @@ namespace DKRZ {
 
     }
 
-    int MPI::get_cmd() {
+    int MPI::get_cmd(int nmodel) {
         int i_cmd;
         MPI_Status stat;
         if (m_local_rank == 0) {
-            MPI_Recv(&i_cmd, 1, MPI_INT, 0, 0, m_intercomm[0], &stat);
+            MPI_Recv(&i_cmd, 1, MPI_INT, 0, 0, m_intercomm[nmodel], &stat);
         }
-        MPI_Bcast(&i_cmd, 0, MPI_INT, 0, m_local_comm);
+        MPI_Bcast(&i_cmd, 1, MPI_INT, 0, m_local_comm);
         return i_cmd;
     }
 
     void MPI::send_cmd(int nmodel, int cmd) {
         if (m_local_rank == 0) {
-            MPI_Send(&cmd, 1, MPI_INT, 0, 0, m_intercomm[nmodel-1]);
+            MPI_Send(&cmd, 1, MPI_INT, 0, 0, m_intercomm[nmodel]);
         }
     }
 
+    void MPI::send(int nmodel, double *data, int count) {
+        if (m_local_rank == 0) {
+            MPI_Send(data, count, MPI_DOUBLE, 0, 0, m_intercomm[nmodel]);
+        }
+    }
+
+    void MPI::recv(int nmodel, double *data, int count) {
+        if (m_local_rank == 0) {
+            MPI_Status stat;
+            MPI_Recv(data, count, MPI_DOUBLE, 0, 0, m_intercomm[nmodel], &stat);
+        }
+        MPI_Bcast(&data, count, MPI_DOUBLE, 0, m_local_comm);
+    }
+
     MPI_Comm MPI::intercomm(int i) {
-      return m_intercomm[i];
+        return m_intercomm[i];
+    }
+
+    int MPI::mymodel() {
+        return m_mymodel;
     }
 
 }
