@@ -2,18 +2,30 @@
 
 #include "CCCC/core/CCCC.hpp"
 #include "CCCC/grid/GridStruct.hpp"
+#include "CCCC/grid/GridUnstruct.hpp"
+#include "CCCC/grid/GridGauss.hpp"
 
 namespace DKRZ {
 
     Grid_Backend choose_backend(std::string backend_name) {
         if (backend_name == "structured") {
           return CCCC_STRUCTURED;
+        } else if (backend_name == "unstructured") {
+          return CCCC_UNSTRUCTURED;
+        } else if (backend_name == "gaussian") {
+          return CCCC_GAUSSIAN;
+        } else {
+          return CCCC_NONE;
         }
     }
 
-    Grid::Ptr create_backend(Grid_Backend backend) {
+    Grid::Ptr create_backend(Grid_Backend backend, Yaxt::Ptr yaxt) {
         if (backend == CCCC_STRUCTURED) {
-          return Grid::Ptr(new GridStruct());
+          return Grid::Ptr(new GridStruct(yaxt));
+        } else if (backend == CCCC_UNSTRUCTURED) {
+          return Grid::Ptr(new GridUnstruct(yaxt));
+        } else if (backend == CCCC_GAUSSIAN) {
+          return Grid::Ptr(new GridGauss(yaxt));
         }
     }
     
@@ -32,7 +44,9 @@ namespace DKRZ {
         }
         // create backend to grid object
         Grid_Backend backend = choose_backend(backend_name);
-        m_grid = create_backend(backend);
+        if (backend == CCCC_NONE)
+            handle_error("selected grid type is not implemented");
+        m_grid = create_backend(backend, m_yaxt);
     }
 
     // Destructor
@@ -44,20 +58,45 @@ namespace DKRZ {
     }
 
     // Create intercommunicator for each model
-    int CCCC::intercomm_create(int nmodel, int nprocs) {
+    void CCCC::intercomm_create(int nmodel, int nprocs) {
         int world_rank;
-        if ( nmodel != m_nprocs.size() ) return 127;
+        if ( nmodel != m_nprocs.size() )
+            handle_error("kernels ID should be defined sequentially (i.e. 1,2,3,4,...) in intrercomm_create() function");
+        if ( nmodel <= 0)
+            handle_error("kernels ID must be positive in intrercomm_create() function");
         m_nprocs.push_back(nprocs);
         m_mpi->intercomm_create(nmodel, nprocs, m_nprocs);
-        return 0;
+        m_yaxt->set_mr_intercomm(m_mpi->intercomm());
     }
 
-    void CCCC::set_redist(int nlv) {
+    // set grid info
+    void CCCC::grid_subdomain_start(int i, int j) {
+        m_grid->set_subdomain_start(i, j);
+    }
 
+    void CCCC::grid_subdomain_end(int i, int j) {
+        m_grid->set_subdomain_end(i, j);
+    }
+
+    void CCCC::grid_subdomain_ext(int i, int j) {
+        m_grid->set_subdomain_ext(i, j);
+    }
+
+    void CCCC::grid_subdomain_off(int i, int j) {
+        m_grid->set_subdomain_off(i, j);
+    }
+
+    void CCCC::grid_domain_ext(int i, int j) {
+        m_grid->set_domain_ext(i, j);
+    }
+
+    // create YAXT redist
+    void CCCC::set_redist(int nmodel, int nlv) {
+        m_redist[nlv] = m_grid->set_yaxt_redist(nmodel, nlv, m_kernel_role);
     }
 
     // Add fields, variables and commands to each model
-    void CCCC::add_field(double *data, int nlv, int nmodel, bool m2k) {
+    void CCCC::add_field(double *data, int nlv, int nmodel, int id, bool m2k) {
         FieldType f;
         f.data = data;
         if (m2k == true) {
@@ -65,21 +104,25 @@ namespace DKRZ {
         } else {
             f.redist = &(m_redist[nlv].redist_k2m);
         }
+        f.exchange_id = id;
         f.m2k = m2k;
         m_fields[nmodel].push_back(f);
     }
 
-    void CCCC::add_variable(double *data, int count, int nmodel, bool m2k) {
+    void CCCC::add_variable(double *data, int count, int nmodel, int id, bool m2k) {
+        if (count <= 0)
+            handle_error("count must be a positive integer in add_variable() function");
         VariableType f;
         f.data = data;
         f.count = count;
+        f.exchange_id = id;
         f.m2k = m2k;
         m_variables[nmodel].push_back(f);
     }
 
     void CCCC::add_command(void (*Func_ptr) (), int nmodel, int cmd_id) {
         if (cmd_id < 0)
-            handle_error("command ID can not be negative");
+            handle_error("command ID can not be negative in add_command() function");
         CmdType c;
         c.cmd = Func_ptr;
         c.cmd_id = cmd_id;
@@ -104,13 +147,16 @@ namespace DKRZ {
             return;
         int i_cmd = m_mpi->get_cmd(nmodel);
         std::cout << "Remote loop starts" << std::endl;
+        int id;
         while (i_cmd != CCCC_CMD_EXIT) {
             switch(i_cmd) {
                 case(CCCC_K2M):
-                    exchange_k2m_impl(nmodel);
+                    id = m_mpi->get_cmd(nmodel);
+                    exchange_k2m_impl(nmodel, id);
                     break;
                 case(CCCC_M2K):
-                    exchange_m2k_impl(nmodel);
+                    id = m_mpi->get_cmd(nmodel);
+                    exchange_m2k_impl(nmodel,id);
                     break;
                 default:
                     for (auto stream_cmds : m_cmds[nmodel]) {
@@ -125,57 +171,63 @@ namespace DKRZ {
     }
 
     // Exchange fields and variables between model and kernels
-    void CCCC::exchange_k2m(int nmodel) {
+    void CCCC::exchange_k2m(int nmodel, int id) {
         if (!m_kernel_role) {
-          m_mpi->send_cmd(nmodel, CCCC_K2M);
-          exchange_k2m_impl(nmodel);
-        }
-    }
-
-    void CCCC::exchange_k2m_impl(int nmodel) {
-        if (m_kernel_role) {
-            send_data(nmodel, false);
+            m_mpi->send_cmd(nmodel, CCCC_K2M);
+            m_mpi->send_cmd(nmodel, id);
+            exchange_k2m_impl(nmodel, id);
         } else {
-            recv_data(nmodel, false);
+            handle_error("kernels procs should not call exchange_k2m() function");
         }
-        exchange_field(nmodel, false);
     }
 
-    void CCCC::exchange_m2k(int nmodel) {
+    void CCCC::exchange_k2m_impl(int nmodel, int id) {
+        if (m_kernel_role) {
+            send_data(nmodel, id, false);
+        } else {
+            recv_data(nmodel, id, false);
+        }
+        exchange_field(nmodel, id, false);
+    }
+
+    void CCCC::exchange_m2k(int nmodel, int id) {
         if (!m_kernel_role) {
-          m_mpi->send_cmd(nmodel, CCCC_M2K);
-          exchange_m2k_impl(nmodel);
-        }
-    }
-
-    void CCCC::exchange_m2k_impl(int nmodel) {
-        if (m_kernel_role) {
-            recv_data(nmodel, true);
+            m_mpi->send_cmd(nmodel, CCCC_M2K);
+            m_mpi->send_cmd(nmodel, id);
+            exchange_m2k_impl(nmodel, id);
         } else {
-            send_data(nmodel, true);
+            handle_error("kernels procs should not call exchange_m2k() function");
         }
-        exchange_field(nmodel, true);
     }
 
-    void CCCC::send_data(int nmodel, bool cond) {
+    void CCCC::exchange_m2k_impl(int nmodel, int id) {
+        if (m_kernel_role) {
+            recv_data(nmodel, id, true);
+        } else {
+            send_data(nmodel, id, true);
+        }
+        exchange_field(nmodel, id, true);
+    }
+
+    void CCCC::send_data(int nmodel, int id, bool cond) {
         for (auto variable : m_variables[nmodel]) {
-            if (variable.m2k == cond) {
+            if (variable.m2k == cond && variable.exchange_id == id) {
                 m_mpi->send(nmodel, variable.data, variable.count);
             }
         }
     }
 
-    void CCCC::recv_data(int nmodel, bool cond) {
+    void CCCC::recv_data(int nmodel, int id, bool cond) {
         for (auto variable : m_variables[nmodel]) {
-            if (variable.m2k == cond) {
+            if (variable.m2k == cond && variable.exchange_id == id) {
                 m_mpi->recv(nmodel, variable.data, variable.count);
             }
         }
     }
 
-    void CCCC::exchange_field(int nmodel, bool cond) {
+    void CCCC::exchange_field(int nmodel, int id, bool cond) {
         for (auto field : m_fields[nmodel]) {
-            if (field.m2k == cond) {
+            if (field.m2k == cond && field.exchange_id == id) {
                 m_yaxt->exchange(*(field.redist), field.data);
             }
         }
@@ -195,10 +247,4 @@ namespace DKRZ {
         return m_kernel_role;
     }
 
-    // Error handler
-    void CCCC::handle_error(std::string msg) {
-        std::cerr << "CCCC Error: " << msg << std::endl;
-        std::exit (EXIT_FAILURE);
-    }
-    
 }
