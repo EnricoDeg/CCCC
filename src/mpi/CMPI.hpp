@@ -17,6 +17,7 @@ namespace DKRZ {
         void send(int nmodel, double *data, int count);
         void recv(int nmodel, double *data, int count);
         MPI_Comm intercomm(int i);
+        std::map<int,MPI_Comm> intercomm();
         int mymodel();
 
     private:

@@ -83,6 +83,10 @@ namespace DKRZ {
         return m_intercomm[i];
     }
 
+    std::map<int,MPI_Comm> MPI::intercomm() {
+        return m_intercomm;
+    }
+
     int MPI::mymodel() {
         return m_mymodel;
     }
