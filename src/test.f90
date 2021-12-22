@@ -60,7 +60,7 @@ program test
     ! Create an object of type cccc
     f = cccc(MPI_COMM_WORLD, 1, trim(backend))
 
-    i = f%intercomm_create(1, 1)
+    call f%intercomm_create(1, 1)
 
     allocate(z(1))
 
@@ -68,13 +68,13 @@ program test
     call f%add_command(c_funloc(initialize_variable), 1, 1)
 
     z = 0.0e0
-    call f%add_variable(z, 1, 1, .true.)
+    call f%add_variable(z, 1, 1, 1, .true.)
 
     call f%start_concurrent(1)
     if (.not. f%has_kernel_role()) then
       z = 1.0e0
       write(*,*) "Model procs print this string"
-      call f%exchange_m2k(1)
+      call f%exchange_m2k(1, 1)
       call f%execute(1,1)
     end if
     call f%stop_concurrent(1)
