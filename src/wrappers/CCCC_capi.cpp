@@ -17,9 +17,14 @@ namespace DKRZ {
         delete cccc;
     }
     
-    int CCCC_intercomm_create(CCCCt* cccc, int nmodel, int nprocs) {
+    void CCCC_intercomm_create(CCCCt* cccc, int nmodel, int nprocs) {
         std::cout << "C API, CCCC_intercomm_create" << std::endl;
         return cccc->intercomm_create(nmodel, nprocs);
+    }
+
+    void CCCC_grid_subdomain_start(CCCCt* cccc, int i, int j) {
+        std::cout << "C API, CCCC_grid_subdomain_start" << std::endl;
+        return cccc->grid_subdomain_start(i, j);
     }
     
     void CCCC_start_concurrent(CCCCt* cccc, int nmodel) {
@@ -42,28 +47,33 @@ namespace DKRZ {
         return cccc->add_command(Func_ptr, nmodel, cmd_id);
     }
     
-    void CCCC_add_field(CCCCt* cccc, double *data, int nlv, int nmodel, int m2k) {
+    void CCCC_add_field(CCCCt* cccc, double *data, int nlv, int nmodel, int id, int m2k) {
         bool cond = true;
         std::cout << "C API, CCCC_add_field" << std::endl;
         if (m2k == 0) cond = false;
-        return cccc->add_field(data, nlv, nmodel, cond);
+        return cccc->add_field(data, nlv, nmodel, id, cond);
     }
     
-    void CCCC_add_variable(CCCCt* cccc, double *data, int count, int nmodel, int m2k) {
+    void CCCC_add_variable(CCCCt* cccc, double *data, int count, int nmodel, int id, int m2k) {
         bool cond = true;
         std::cout << "C API, CCCC_add_variable" << std::endl;
         if (m2k == 0) cond = false;
-        return cccc->add_variable(data, count, nmodel, cond);
+        return cccc->add_variable(data, count, nmodel, id, cond);
     }
     
-    void CCCC_exchange_k2m(CCCCt* cccc, int nmodel) {
+    void CCCC_exchange_k2m(CCCCt* cccc, int nmodel, int id) {
         std::cout << "C API, CCCC_exchange_k2m" << std::endl;
-        return cccc->exchange_k2m(nmodel);
+        return cccc->exchange_k2m(nmodel, id);
     }
     
-    void CCCC_exchange_m2k(CCCCt* cccc, int nmodel) {
+    void CCCC_exchange_m2k(CCCCt* cccc, int nmodel, int id) {
         std::cout << "C API, CCCC_exchange_m2k" << std::endl;
-        return cccc->exchange_m2k(nmodel);
+        return cccc->exchange_m2k(nmodel, id);
+    }
+
+    void CCCC_set_redist(CCCCt* cccc, int nmodel, int nlv) {
+        std::cout << "C API, CCCC_set_redist" << std::endl;
+        return cccc->set_redist(nmodel, nlv);
     }
     
     bool CCCC_has_kernel_role(CCCCt* cccc) {

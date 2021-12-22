@@ -15,14 +15,13 @@ interface
         type(c_ptr), value :: cccc
     end subroutine
 
-    function CCCC_intercomm_create_c(cccc, nmodel, nprocs) bind(C, name="CCCC_intercomm_create")
+    subroutine CCCC_intercomm_create_c(cccc, nmodel, nprocs) bind(C, name="CCCC_intercomm_create")
         use iso_c_binding
         implicit none
-        integer(c_int) :: CCCC_intercomm_create_c
         type(c_ptr), value :: cccc
         integer(c_int), value :: nmodel
         integer(c_int), value :: nprocs
-    end function
+    end subroutine
 
     subroutine CCCC_start_concurrent_c(cccc, nmodel) bind(C, name="CCCC_start_concurrent")
         use iso_c_binding
@@ -62,38 +61,58 @@ interface
         integer(c_int), value :: cmd_id
     end subroutine
 
-    subroutine CCCC_add_field_c(cccc, data, nlv, nmodel, m2k) bind(C, name='CCCC_add_field')
+    subroutine CCCC_add_field_c(cccc, data, nlv, nmodel, id, m2k) bind(C, name='CCCC_add_field')
         use iso_c_binding
         implicit none
         type(c_ptr), value :: cccc
         real(c_double), dimension(*), intent(inout) :: data
         integer(c_int), value :: nlv
         integer(c_int), value :: nmodel
+        integer(c_int), value :: id
         integer(c_int), value :: m2k
     end subroutine CCCC_add_field_c
 
-    subroutine CCCC_add_variable_c(cccc, data, count, nmodel, m2k) bind(C, name='CCCC_add_variable')
+    subroutine CCCC_add_variable_c(cccc, data, count, nmodel, id, m2k) bind(C, name='CCCC_add_variable')
         use iso_c_binding
         implicit none
         type(c_ptr), value :: cccc
         real(c_double), dimension(*), intent(inout) :: data
         integer(c_int), value :: count
         integer(c_int), value :: nmodel
+        integer(c_int), value :: id
         integer(c_int), value :: m2k
     end subroutine CCCC_add_variable_c
 
-    subroutine CCCC_exchange_k2m_c(cccc, nmodel) bind(C, name='CCCC_exchange_k2m')
+    subroutine CCCC_exchange_k2m_c(cccc, nmodel, id) bind(C, name='CCCC_exchange_k2m')
         use iso_c_binding
         implicit none
         type(c_ptr), value :: cccc
         integer(c_int), value :: nmodel
+        integer(c_int), value :: id
     end subroutine CCCC_exchange_k2m_c
 
-    subroutine CCCC_exchange_m2k_c(cccc, nmodel) bind(C, name='CCCC_exchange_m2k')
+    subroutine CCCC_exchange_m2k_c(cccc, nmodel, id) bind(C, name='CCCC_exchange_m2k')
         use iso_c_binding
         implicit none
         type(c_ptr), value :: cccc
         integer(c_int), value :: nmodel
+        integer(c_int), value :: id
     end subroutine CCCC_exchange_m2k_c
 
+    subroutine CCCC_grid_subdomain_start_c(cccc, i, j) bind(C, name='CCCC_grid_subdomain_start')
+        use iso_c_binding
+        implicit none
+        type(c_ptr), value :: cccc
+        integer(c_int), value :: i
+        integer(c_int), value :: j
+    end subroutine CCCC_grid_subdomain_start_c
+    
+    subroutine CCCC_set_redist_c(cccc, nmodel, nlv) bind(C, name='CCCC_set_redist')
+        use iso_c_binding
+        implicit none
+        type(c_ptr), value :: cccc
+        integer(c_int), value :: nmodel
+        integer(c_int), value :: nlv
+    end subroutine CCCC_set_redist_c
+    
 end interface

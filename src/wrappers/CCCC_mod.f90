@@ -13,16 +13,18 @@ module libcccc
     contains
         procedure :: finalize => CCCC_finalize_polymorph ! Destructor for gfortran
         ! Function member
-        procedure :: intercomm_create => CCCC_intercomm_create
-        procedure :: start_concurrent => CCCC_start_concurrent
-        procedure :: stop_concurrent  => CCCC_stop_concurrent
-        procedure :: execute          => CCCC_execute
-        procedure :: has_kernel_role  => CCCC_has_kernel_role
-        procedure :: add_command      => CCCC_add_command
-        procedure :: add_field        => CCCC_add_field
-        procedure :: add_variable     => CCCC_add_variable
-        procedure :: exchange_k2m     => CCCC_exchange_k2m
-        procedure :: exchange_m2k     => CCCC_exchange_m2k
+        procedure :: intercomm_create     => CCCC_intercomm_create
+        procedure :: grid_subdomain_start => CCCC_grid_subdomain_start
+        procedure :: start_concurrent     => CCCC_start_concurrent
+        procedure :: stop_concurrent      => CCCC_stop_concurrent
+        procedure :: execute              => CCCC_execute
+        procedure :: has_kernel_role      => CCCC_has_kernel_role
+        procedure :: add_command          => CCCC_add_command
+        procedure :: add_field            => CCCC_add_field
+        procedure :: add_variable         => CCCC_add_variable
+        procedure :: exchange_k2m         => CCCC_exchange_k2m
+        procedure :: exchange_m2k         => CCCC_exchange_m2k
+        procedure :: set_redist           => CCCC_set_redist
     end type
 
     ! This function acts as the constructor for cccc type
@@ -63,13 +65,13 @@ contains
         call cccc_finalize_c(this%ptr)
     end subroutine
 
-    integer function CCCC_intercomm_create(this, nmodel, nprocs)
+    subroutine CCCC_intercomm_create(this, nmodel, nprocs)
         implicit none
         class(cccc) :: this
         integer, intent(in) :: nmodel
         integer, intent(in) :: nprocs
-        CCCC_intercomm_create = CCCC_intercomm_create_c(this%ptr, nmodel, nprocs)
-    end function
+        call CCCC_intercomm_create_c(this%ptr, nmodel, nprocs)
+    end subroutine
 
     subroutine CCCC_start_concurrent(this, nmodel)
         implicit none
@@ -108,12 +110,13 @@ contains
         call CCCC_add_command_c(this%ptr, func_ptr, nmodel, cmd_id)
     end subroutine
 
-    subroutine CCCC_add_field(this, data, nlv, nmodel, m2k)
+    subroutine CCCC_add_field(this, data, nlv, nmodel, id, m2k)
         implicit none
         class(cccc) :: this
         real(c_double), dimension(*), intent(inout) :: data
         integer, intent(in) :: nlv
         integer, intent(in) :: nmodel
+        integer, intent(in) :: id
         logical, intent(in) :: m2k
         integer :: cond
         if (m2k .eqv. .false.) then
@@ -121,15 +124,16 @@ contains
         else
             cond = 1
         end if
-        call CCCC_add_field_c(this%ptr, data, nlv, nmodel, cond)
+        call CCCC_add_field_c(this%ptr, data, nlv, nmodel, id, cond)
     end subroutine
-
-    subroutine CCCC_add_variable(this, data, count, nmodel, m2k)
+    
+    subroutine CCCC_add_variable(this, data, count, nmodel, id, m2k)
         implicit none
         class(cccc) :: this
         real(c_double), dimension(*), intent(inout) :: data
         integer, intent(in) :: count
         integer, intent(in) :: nmodel
+        integer, intent(in) :: id
         logical, intent(in) :: m2k
         integer :: cond
         if (m2k .eqv. .false.) then
@@ -137,21 +141,39 @@ contains
         else
             cond = 1
         end if
-        call CCCC_add_variable_c(this%ptr, data, count, nmodel, cond)
+        call CCCC_add_variable_c(this%ptr, data, count, nmodel, id, cond)
     end subroutine
-
-    subroutine CCCC_exchange_k2m(this, nmodel)
+    
+    subroutine CCCC_exchange_k2m(this, nmodel, id)
         implicit none
         class(cccc) :: this
         integer, intent(in) :: nmodel
-        call CCCC_exchange_k2m_c(this%ptr, nmodel)
+        integer, intent(in) :: id
+        call CCCC_exchange_k2m_c(this%ptr, nmodel, id)
     end subroutine
-
-    subroutine CCCC_exchange_m2k(this, nmodel)
+    
+    subroutine CCCC_exchange_m2k(this, nmodel, id)
         implicit none
         class(cccc) :: this
         integer, intent(in) :: nmodel
-        call CCCC_exchange_m2k_c(this%ptr, nmodel)
+        integer, intent(in) :: id
+        call CCCC_exchange_m2k_c(this%ptr, nmodel, id)
     end subroutine
-
+    
+    subroutine CCCC_grid_subdomain_start(this, i, j)
+        implicit none
+        class(cccc) :: this
+        integer, intent(in) :: i
+        integer, intent(in) :: j
+        call CCCC_grid_subdomain_start_c(this%ptr, i, j)
+    end subroutine CCCC_grid_subdomain_start
+    
+    subroutine CCCC_set_redist(this, nmodel, nlv)
+        implicit none
+        class(cccc) :: this
+        integer, intent(in) :: nmodel
+        integer, intent(in) :: nlv
+        call CCCC_set_redist_c(this%ptr, nmodel, nlv)
+    end subroutine CCCC_set_redist
+    
 end module
