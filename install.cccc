@@ -1,5 +1,5 @@
 #!/bin/bash
-source machine/$1
+source machine/$1 $2
 
 mkdir build
 cd build

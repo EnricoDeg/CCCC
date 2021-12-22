@@ -1,10 +1,38 @@
 #!/bin/bash
 module purge
 module add cmake/3.17.1-gcc-9.1.0
-module add gcc/6.4.0
-module add openmpi/2.0.2p2_hpcx-gcc64
 
-export YAXT_ROOT=/work/bk0993/k202136/yaxt-0.9.0_g++_openmpi2
+if [[ $1 == "intel" ]]
+then
+  module add intel/18.0.4
+  module add intelmpi/2018.5.288
+
+  export CC=icc
+  export CXX=icpc
+  export FC=ifort
+  export F77=ifort
+  export CFLAGS='-O0 -gxx-name=/sw/rhel6-x64/gcc/gcc-6.4.0/bin/g++ -gcc-name=/sw/rhel6-x64/gcc/gcc-6.4.0/bin/gcc'
+  export CXXFLAGS="-O0 -gxx-name=/sw/rhel6-x64/gcc/gcc-6.4.0/bin/g++ -gcc-name=/sw/rhel6-x64/gcc/gcc-6.4.0/bin/gcc"
+  export FFLAGS="-O0"
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/sw/rhel6-x64/gcc/gcc-6.4.0/lib:/sw/rhel6-x64/gcc/gcc-6.4.0/lib64
+
+  export YAXT_ROOT=/work/bk0993/k202136/yaxt-0.9.0-intel18-intelmpi2018
+
+elif [[ $1 == "gcc" ]]
+then
+  module add gcc/6.4.0
+  module add openmpi/2.0.2p2_hpcx-gcc64
+
+  export CFLAGS="-O0"
+  export CXXFLAGS="-O0"
+  export FFLAGS="-O0"
+
+  export YAXT_ROOT=/work/bk0993/k202136/yaxt-0.9.0_g++_openmpi2
+else
+  echo "Not supported compiler"
+  exit 1
+fi
+
 export CCCC_DIR=${PWD}
 
 export LD_LYBRARY_PATH=${YAXT_LIB}:${LD_LYBRARY_PATH}
