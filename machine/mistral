@@ -4,8 +4,8 @@ module add cmake/3.17.1-gcc-9.1.0
 
 if [[ $1 == "intel" ]]
 then
-  module add intel/18.0.4
-  module add intelmpi/2018.5.288
+  module add intel/17.0.2
+  module add openmpi/2.0.2p2_hpcx-intel14
 
   export CC=icc
   export CXX=icpc
@@ -16,7 +16,7 @@ then
   export FFLAGS="-O0"
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/sw/rhel6-x64/gcc/gcc-6.4.0/lib:/sw/rhel6-x64/gcc/gcc-6.4.0/lib64
 
-  export YAXT_ROOT=/work/bk0993/k202136/yaxt-0.9.0-intel18-intelmpi2018
+  export YAXT_ROOT=/work/bk0993/k202136/yaxt-0.9.0-intel17-openmpi2
 
 elif [[ $1 == "gcc" ]]
 then
