@@ -3,7 +3,7 @@
 
 namespace DKRZ {
 
-    enum Grid_Backend {CCCC_STRUCTURED, CCCC_UNSTRUCTURED};
+    enum Grid_Backend {CCCC_NONE, CCCC_STRUCTURED, CCCC_UNSTRUCTURED, CCCC_GAUSSIAN};
 
 }
 

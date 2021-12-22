@@ -25,8 +25,11 @@ set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/modules)
 set(SOURCE_EXE  yaxt/Yaxt.cpp
                 mpi/CMPI.cpp
                 core/CCCC.cpp
+                core/Error.cpp
                 grid/Grid.cpp
                 grid/GridStruct.cpp
+                grid/GridUnstruct.cpp
+                grid/GridGauss.cpp
                 wrappers/CCCC_capi.cpp
                 wrappers/CCCC_mod.f90
                 )
@@ -62,7 +65,3 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/src/
   FILES_MATCHING
   PATTERN "*.hpp"
   )
-
-
-
-
