@@ -52,7 +52,7 @@ namespace DKRZ {
                 jg = m_off.j + j;
                 for (int i = m_start.i; i <= m_end.i; i++) {
                     ig = m_off.i + i;
-                    idx.push_back(ig + m_glob.i * (m_glob.j - 1) + m_glob.i * m_glob.j * (k - 1));
+                    idx.push_back(ig + m_glob.i * (jg - 1) + m_glob.i * m_glob.j * (k - 1));
                 }
             }
         }
