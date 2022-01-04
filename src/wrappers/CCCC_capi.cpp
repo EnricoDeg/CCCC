@@ -11,6 +11,11 @@ namespace DKRZ {
         MPI_Comm g = MPI_Comm_f2c(*glob);
         return new CCCC(g, nprocs_kernel, backend_name_cpp);
     }
+
+    MPI_Fint CCCC_local_comm(CCCCt* cccc) {
+        MPI_Comm g = cccc->local_comm();
+        return MPI_Comm_c2f(g);
+    }
     
     void CCCC_finalize(CCCCt* cccc){
         std::cout << "C API, CCCC_finalize" << std::endl;
@@ -25,6 +30,26 @@ namespace DKRZ {
     void CCCC_grid_subdomain_start(CCCCt* cccc, int i, int j) {
         std::cout << "C API, CCCC_grid_subdomain_start" << std::endl;
         return cccc->grid_subdomain_start(i, j);
+    }
+
+    void CCCC_grid_subdomain_end(CCCCt* cccc, int i, int j) {
+        std::cout << "C API, CCCC_grid_subdomain_end" << std::endl;
+        return cccc->grid_subdomain_end(i, j);
+    }
+
+    void CCCC_grid_subdomain_ext(CCCCt* cccc, int i, int j) {
+        std::cout << "C API, CCCC_grid_subdomain_ext" << std::endl;
+        return cccc->grid_subdomain_ext(i, j);
+    }
+
+    void CCCC_grid_subdomain_off(CCCCt* cccc, int i, int j) {
+        std::cout << "C API, CCCC_grid_subdomain_off" << std::endl;
+        return cccc->grid_subdomain_off(i, j);
+    }
+
+    void CCCC_grid_domain_ext(CCCCt* cccc, int i, int j) {
+        std::cout << "C API, CCCC_grid_domain_ext" << std::endl;
+        return cccc->grid_domain_ext(i, j);
     }
     
     void CCCC_start_concurrent(CCCCt* cccc, int nmodel) {

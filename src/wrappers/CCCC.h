@@ -12,6 +12,9 @@ extern "C" {
 // Constructor
 CCCCt* CCCC_init(MPI_Fint *glob, int nprocs_kernel, char* backend_name);
 
+// get local comm of a component
+MPI_Fint CCCC_local_comm(CCCCt* cccc);
+
 // Destructor
 void CCCC_finalize(CCCCt* cccc);
 
@@ -47,6 +50,10 @@ void CCCC_exchange_m2k(CCCCt* cccc, int nmodel, int id);
 
 // grid functions
 void CCCC_grid_subdomain_start(CCCCt* cccc, int i, int j);
+void CCCC_grid_subdomain_end(CCCCt* cccc, int i, int j);
+void CCCC_grid_subdomain_ext(CCCCt* cccc, int i, int j);
+void CCCC_grid_subdomain_off(CCCCt* cccc, int i, int j);
+void CCCC_grid_domain_ext(CCCCt* cccc, int i, int j);
 
 // set YAXT redistribution
 void CCCC_set_redist(CCCCt* cccc, int nmodel, int nlv);

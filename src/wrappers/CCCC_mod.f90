@@ -13,8 +13,13 @@ module libcccc
     contains
         procedure :: finalize => CCCC_finalize_polymorph ! Destructor for gfortran
         ! Function member
+        procedure :: local_comm           => CCCC_local_comm
         procedure :: intercomm_create     => CCCC_intercomm_create
         procedure :: grid_subdomain_start => CCCC_grid_subdomain_start
+        procedure :: grid_subdomain_end   => CCCC_grid_subdomain_end
+        procedure :: grid_subdomain_off   => CCCC_grid_subdomain_off
+        procedure :: grid_subdomain_ext   => CCCC_grid_subdomain_ext
+        procedure :: grid_domain_ext      => CCCC_grid_domain_ext
         procedure :: start_concurrent     => CCCC_start_concurrent
         procedure :: stop_concurrent      => CCCC_stop_concurrent
         procedure :: execute              => CCCC_execute
@@ -33,38 +38,44 @@ module libcccc
     end interface
 
 contains
-
+    
     function CCCC_init(glob, nprocs_kernel, backend)
         implicit none
         type(cccc) :: CCCC_init
         integer :: glob
         integer, intent(in) :: nprocs_kernel
         character(len=*) :: backend
-
+    
         character(kind=C_char), dimension(len(backend)+1) :: c_backend
         integer :: i
-
+    
         do i = 1, len(backend)
           c_backend(i) = backend(i:i)
         end do
         c_backend(len(backend)+1) = c_null_char
-
+    
         cccc_init%ptr = CCCC_init_c(glob, nprocs_kernel, c_backend)
     end function
-
+    
     subroutine CCCC_finalize(this)
         implicit none
         type(cccc) :: this
         call cccc_finalize_c(this%ptr)
     end subroutine
-
+    
     ! Bounds procedure needs to take a polymorphic (class) argument
     subroutine CCCC_finalize_polymorph(this)
         implicit none
         class(cccc) :: this
         call cccc_finalize_c(this%ptr)
     end subroutine
-
+    
+    integer function CCCC_local_comm(this)
+        implicit none
+        class(cccc) :: this
+        CCCC_local_comm = CCCC_local_comm_c(this%ptr)
+    end function
+    
     subroutine CCCC_intercomm_create(this, nmodel, nprocs)
         implicit none
         class(cccc) :: this
@@ -72,21 +83,21 @@ contains
         integer, intent(in) :: nprocs
         call CCCC_intercomm_create_c(this%ptr, nmodel, nprocs)
     end subroutine
-
+    
     subroutine CCCC_start_concurrent(this, nmodel)
         implicit none
         class(cccc) :: this
         integer, intent(in) :: nmodel
         call CCCC_start_concurrent_c(this%ptr, nmodel)
     end subroutine
-
+    
     subroutine CCCC_stop_concurrent(this, nmodel)
         implicit none
         class(cccc) :: this
         integer, intent(in) :: nmodel
         call CCCC_stop_concurrent_c(this%ptr, nmodel)
     end subroutine
-
+    
     subroutine CCCC_execute(this, nmodel, cmd_id)
         implicit none
         class(cccc) :: this
@@ -94,13 +105,13 @@ contains
         integer, intent(in) :: cmd_id
         call CCCC_execute_c(this%ptr, nmodel, cmd_id)
     end subroutine 
-
+    
     logical function CCCC_has_kernel_role(this)
         implicit none
         class(cccc) :: this
         CCCC_has_kernel_role = CCCC_has_kernel_role_c(this%ptr)
     end function
-
+    
     subroutine CCCC_add_command(this, func_ptr, nmodel, cmd_id)
         implicit none
         class(cccc) :: this
@@ -109,7 +120,7 @@ contains
         integer, intent(in) :: cmd_id
         call CCCC_add_command_c(this%ptr, func_ptr, nmodel, cmd_id)
     end subroutine
-
+    
     subroutine CCCC_add_field(this, data, nlv, nmodel, id, m2k)
         implicit none
         class(cccc) :: this
@@ -167,6 +178,38 @@ contains
         integer, intent(in) :: j
         call CCCC_grid_subdomain_start_c(this%ptr, i, j)
     end subroutine CCCC_grid_subdomain_start
+
+    subroutine CCCC_grid_subdomain_end(this, i, j)
+        implicit none
+        class(cccc) :: this
+        integer, intent(in) :: i
+        integer, intent(in) :: j
+        call CCCC_grid_subdomain_end_c(this%ptr, i, j)
+    end subroutine CCCC_grid_subdomain_end
+
+    subroutine CCCC_grid_subdomain_off(this, i, j)
+        implicit none
+        class(cccc) :: this
+        integer, intent(in) :: i
+        integer, intent(in) :: j
+        call CCCC_grid_subdomain_off_c(this%ptr, i, j)
+    end subroutine CCCC_grid_subdomain_off
+
+    subroutine CCCC_grid_subdomain_ext(this, i, j)
+        implicit none
+        class(cccc) :: this
+        integer, intent(in) :: i
+        integer, intent(in) :: j
+        call CCCC_grid_subdomain_ext_c(this%ptr, i, j)
+    end subroutine CCCC_grid_subdomain_ext
+
+    subroutine CCCC_grid_domain_ext(this, i, j)
+        implicit none
+        class(cccc) :: this
+        integer, intent(in) :: i
+        integer, intent(in) :: j
+        call CCCC_grid_domain_ext_c(this%ptr, i, j)
+    end subroutine CCCC_grid_domain_ext
     
     subroutine CCCC_set_redist(this, nmodel, nlv)
         implicit none

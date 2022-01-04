@@ -9,6 +9,13 @@ interface
         character(kind=C_char), dimension(*) :: backend
     end function
 
+    function CCCC_local_comm_c(cccc) bind(C, name="CCCC_local_comm")
+        use iso_c_binding
+        implicit none
+        type(c_ptr), value :: cccc
+        integer :: CCCC_local_comm_c
+    end function
+
     subroutine CCCC_finalize_c(cccc) bind(C, name="CCCC_finalize")
         use iso_c_binding
         implicit none
@@ -106,6 +113,38 @@ interface
         integer(c_int), value :: i
         integer(c_int), value :: j
     end subroutine CCCC_grid_subdomain_start_c
+
+    subroutine CCCC_grid_subdomain_end_c(cccc, i, j) bind(C, name='CCCC_grid_subdomain_end')
+        use iso_c_binding
+        implicit none
+        type(c_ptr), value :: cccc
+        integer(c_int), value :: i
+        integer(c_int), value :: j
+    end subroutine CCCC_grid_subdomain_end_c
+
+    subroutine CCCC_grid_subdomain_ext_c(cccc, i, j) bind(C, name='CCCC_grid_subdomain_ext')
+        use iso_c_binding
+        implicit none
+        type(c_ptr), value :: cccc
+        integer(c_int), value :: i
+        integer(c_int), value :: j
+    end subroutine CCCC_grid_subdomain_ext_c
+
+    subroutine CCCC_grid_subdomain_off_c(cccc, i, j) bind(C, name='CCCC_grid_subdomain_off')
+        use iso_c_binding
+        implicit none
+        type(c_ptr), value :: cccc
+        integer(c_int), value :: i
+        integer(c_int), value :: j
+    end subroutine CCCC_grid_subdomain_off_c
+
+    subroutine CCCC_grid_domain_ext_c(cccc, i, j) bind(C, name='CCCC_grid_domain_ext')
+        use iso_c_binding
+        implicit none
+        type(c_ptr), value :: cccc
+        integer(c_int), value :: i
+        integer(c_int), value :: j
+    end subroutine CCCC_grid_domain_ext_c
     
     subroutine CCCC_set_redist_c(cccc, nmodel, nlv) bind(C, name='CCCC_set_redist')
         use iso_c_binding
