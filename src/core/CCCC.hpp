@@ -51,6 +51,7 @@ namespace DKRZ {
         void stop_concurrent(int nmodel);
         void execute(int nmodel, int cmd_id);
         bool has_kernel_role();
+        MPI_Comm local_comm();
 
     protected:
         Yaxt::Ptr m_yaxt;

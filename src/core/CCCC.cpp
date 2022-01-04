@@ -247,4 +247,8 @@ namespace DKRZ {
         return m_kernel_role;
     }
 
+    MPI_Comm CCCC::local_comm() {
+        return m_mpi->local_comm();
+    }
+
 }

@@ -19,6 +19,7 @@ namespace DKRZ {
         MPI_Comm intercomm(int i);
         std::map<int,MPI_Comm> intercomm();
         int mymodel();
+        MPI_Comm local_comm();
 
     private:
         MPI_Comm m_glob_comm, m_local_comm;

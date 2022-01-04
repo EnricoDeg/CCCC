@@ -91,4 +91,8 @@ namespace DKRZ {
         return m_mymodel;
     }
 
+    MPI_Comm MPI::local_comm() {
+        return m_local_comm;
+    }
+
 }
