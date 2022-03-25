@@ -5,6 +5,10 @@
 
 namespace DKRZ {
 
+    //! Derived class for Gaussian Grid type
+    /*!
+      
+    */
     class GridGauss : public Grid {
 
         public:

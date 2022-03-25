@@ -9,17 +9,29 @@ extern "C"{
 
 
 namespace DKRZ {
-    
+   
+    //! C structure for YAXT redistribution 
+    /*!
+
+    */
     struct YaxtRedist {
         Xt_redist redist_m2k;
         Xt_redist redist_k2m;
     };
     
+    //! C structure for YAXT map
+    /*!
+
+    */
     struct YaxtMap {
         Xt_xmap map_m2k;
         Xt_xmap map_k2m;
     };
     
+    //! interface to YAXT library
+    /*!
+      
+    */
     class Yaxt {
         public:
             typedef std::shared_ptr<Yaxt> Ptr;

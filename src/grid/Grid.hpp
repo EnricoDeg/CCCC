@@ -8,11 +8,19 @@
 
 namespace DKRZ {
     
+    //! C structure for a 2D point coordinates
+    /*!
+
+    */
     struct Point2DType {
         int i;
         int j;
     };
     
+    //! Parent class for supported grids
+    /*!
+      
+    */
     class Grid {
         public:
             typedef std::shared_ptr<Grid> Ptr;

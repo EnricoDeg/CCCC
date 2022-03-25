@@ -5,6 +5,10 @@
 
 namespace DKRZ {
 
+    //! Derived class for Unstructured Grid type
+    /*!
+
+    */
     class GridUnstruct : public Grid {
 
         public:

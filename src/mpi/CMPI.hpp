@@ -6,6 +6,10 @@
 
 namespace DKRZ {
 
+  //! interface to MPI library
+  /*!
+    
+  */
   class MPI {
     public:
         typedef std::shared_ptr<MPI> Ptr;

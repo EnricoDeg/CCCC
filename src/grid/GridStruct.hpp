@@ -5,6 +5,10 @@
 
 namespace DKRZ {
 
+    //! Derived class for Structured Grid type
+    /*!
+
+    */
     class GridStruct : public Grid {
 
         public:
