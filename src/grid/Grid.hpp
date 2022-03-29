@@ -26,6 +26,7 @@ namespace DKRZ {
             typedef std::shared_ptr<Grid> Ptr;
             Grid(Yaxt::Ptr yaxtp);
             ~Grid();
+            int get_size();
             void set_subdomain_start(int i, int j);
             void set_subdomain_end(int i, int j);
             void set_subdomain_ext(int i, int j);
@@ -35,6 +36,7 @@ namespace DKRZ {
             
         protected:
             // implementations
+            virtual int get_size_impl();
             virtual void set_subdomain_start_impl(int i, int j);
             virtual void set_subdomain_end_impl(int i, int j);
             virtual void set_subdomain_ext_impl(int i, int j);

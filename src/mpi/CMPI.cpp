@@ -79,6 +79,15 @@ namespace DKRZ {
         MPI_Bcast(&data, count, MPI_DOUBLE, 0, m_local_comm);
     }
 
+    void MPI::exchange(double *data, int size, bool sender, int nmodel) {
+        if (sender) {
+            MPI_Send(data, size, MPI_DOUBLE, m_local_rank, 0, m_intercomm[nmodel]);
+        } else {
+            MPI_Status stat;
+            MPI_Recv(data, size, MPI_DOUBLE, m_local_rank, 0, m_intercomm[nmodel], &stat);
+        }
+    }
+
     MPI_Comm MPI::intercomm(int i) {
         return m_intercomm[i];
     }

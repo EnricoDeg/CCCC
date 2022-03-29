@@ -20,6 +20,7 @@ namespace DKRZ {
         void send_cmd(int nmodel, int cmd);
         void send(int nmodel, double *data, int count);
         void recv(int nmodel, double *data, int count);
+        void exchange(double *data, int size, bool sender, int nmodel);
         MPI_Comm intercomm(int i);
         std::map<int,MPI_Comm> intercomm();
         int mymodel();

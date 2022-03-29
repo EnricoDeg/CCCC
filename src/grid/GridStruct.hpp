@@ -16,6 +16,7 @@ namespace DKRZ {
             virtual ~GridStruct();
 
         protected:
+            int get_size_impl();
             void set_subdomain_start_impl(int i, int j); 
             void set_subdomain_end_impl(int i, int j);
             void set_subdomain_ext_impl(int i, int j);

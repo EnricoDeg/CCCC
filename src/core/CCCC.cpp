@@ -105,6 +105,7 @@ namespace DKRZ {
             f.redist = &(m_redist[nlv].redist_k2m);
         }
         f.exchange_id = id;
+        f.size = m_grid->get_size() * nlv;
         f.m2k = m2k;
         m_fields[nmodel].push_back(f);
     }
@@ -187,7 +188,7 @@ namespace DKRZ {
         } else {
             recv_data(nmodel, id, false);
         }
-        exchange_field(nmodel, id, false);
+        exchange_field_mpi(nmodel, id, false);
     }
 
     void CCCC::exchange_m2k(int nmodel, int id) {
@@ -206,7 +207,7 @@ namespace DKRZ {
         } else {
             send_data(nmodel, id, true);
         }
-        exchange_field(nmodel, id, true);
+        exchange_field_mpi(nmodel, id, true);
     }
 
     void CCCC::send_data(int nmodel, int id, bool cond) {
@@ -225,10 +226,34 @@ namespace DKRZ {
         }
     }
 
-    void CCCC::exchange_field(int nmodel, int id, bool cond) {
+    void CCCC::exchange_field_yaxt(int nmodel, int id, bool cond) {
         for (auto field : m_fields[nmodel]) {
             if (field.m2k == cond && field.exchange_id == id) {
                 m_yaxt->exchange(*(field.redist), field.data);
+            }
+        }
+    }
+
+    void CCCC::exchange_field_mpi(int nmodel, int id, bool cond) {
+        bool sender;
+
+        if (cond) { // m2k
+            if (m_kernel_role) {
+                sender = false; // kernel recv data
+            } else {
+                sender = true; // model send data
+            }
+        } else { //k2m
+            if (m_kernel_role) {
+                sender = true; // kernel send data
+            } else {
+                sender = false; // model recv data
+            }
+        }
+
+        for (auto field : m_fields[nmodel]) {
+            if (field.m2k == cond && field.exchange_id == id) {
+                m_mpi->exchange(field.data, field.size, sender, nmodel);
             }
         }
     }

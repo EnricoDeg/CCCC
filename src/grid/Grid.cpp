@@ -8,6 +8,10 @@ namespace DKRZ {
     Grid::~Grid() {
     }
 
+    int Grid::get_size() {
+        return this->get_size_impl();
+    }
+
     void Grid::set_subdomain_start(int i, int j) {
         this->set_subdomain_start_impl(i,j);
     }
@@ -33,6 +37,10 @@ namespace DKRZ {
     }
 
     // implemementations
+    int Grid::get_size_impl() {
+        handle_error("get_size() not supported for selected grid type");
+    }
+
     void  Grid::set_subdomain_start_impl(int i, int j) {
         handle_error("set_subdomain_start() not supported for selected grid type");
     }

@@ -16,6 +16,7 @@ namespace DKRZ {
   /*!
     \param data pointer to the field data
     \param redist pointer to the YAXT redistribution
+    \param size size of the field
     \param exchange_id exchange ID
     \param m2k exchange direction
   */
@@ -23,6 +24,7 @@ namespace DKRZ {
     double *data;
     Xt_redist *redist;
     int exchange_id;
+    int size;
     bool m2k;
   };
 
@@ -232,6 +234,7 @@ namespace DKRZ {
         void exchange_k2m_impl(int nmodel, int id);
         void send_data(int nmodel, int id, bool cond);
         void recv_data(int nmodel, int id, bool cond);
-        void exchange_field(int nmodel, int id, bool cond);
+        void exchange_field_yaxt(int nmodel, int id, bool cond);
+        void exchange_field_mpi(int nmodel, int id, bool cond);
   };
 }

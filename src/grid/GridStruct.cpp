@@ -12,6 +12,10 @@ namespace DKRZ {
     GridStruct::~GridStruct() {
     
     }
+
+    int GridStruct::get_size_impl() {
+        return m_ext.i * m_ext.j;
+    }
     
     void GridStruct::set_subdomain_start_impl(int i, int j) {
         m_start.i = i;
