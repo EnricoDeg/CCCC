@@ -22,22 +22,22 @@ int main(int argc, char **argv)
                               * (size_t)src_array_size[1] * sizeof(*src_array));
 
   for (int i = 0; i < src_array_size[0] * src_array_size[1]; ++i)
-    src_array[i] = (double)rank;
+    src_array[i] = 1.0 - (double)rank;
 
-  ccm->grid_subdomain_start(1, 1);
-  ccm->grid_subdomain_end(10, 10);
+//  ccm->grid_subdomain_start(1, 1);
+//  ccm->grid_subdomain_end(10, 10);
   ccm->grid_subdomain_ext(10, 10);
-  ccm->grid_subdomain_off(0, 0);
-  ccm->grid_domain_ext(10, 10);
+//  ccm->grid_subdomain_off(0, 0);
+//  ccm->grid_domain_ext(10, 10);
 
-  ccm->set_redist(src_array,1, 1, MPI_DOUBLE);
+//  ccm->set_redist(1, 1);
 
-//  ccm->add_field(src_array, 1, 1, 1, true);
+  ccm->add_field(src_array, 1, 1, 1, true);
 
   ccm->start_concurrent(1);
-
-//  ccm->exchange_m2k(1, 1);
-
+  if (!ccm->has_kernel_role()) {
+    ccm->exchange_m2k(1, 1);
+  }
   ccm->stop_concurrent(1);
 
   ccm.reset();
