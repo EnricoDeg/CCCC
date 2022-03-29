@@ -45,14 +45,17 @@ program test
     USE mpi
     use libcccc
     use, intrinsic :: iso_c_binding
-    use func_pointer_mod
+    !use func_pointer_mod
     implicit none
 
     integer, parameter :: dp = selected_real_kind(15)
     type(cccc) :: f
     integer i, ierr;
     character(len=100) :: backend
-    real(dp), target, allocatable, dimension(:) :: z
+    double precision, target, allocatable, dimension(:,:) :: a
+    integer myid;
+    integer, parameter :: N = 10
+!    real(dp), target, allocatable, dimension(:) :: z
 
     call MPI_Init(ierr)
 
@@ -62,24 +65,36 @@ program test
 
     call f%intercomm_create(1, 1)
 
-    allocate(z(1))
+    allocate(a(N,N))
+    a(:,:) = 0.0e0
+    call MPI_COMM_RANK(MPI_COMM_WORLD, myid, ierr)
+    CALL f%grid_subdomain_start(1, 1)
+    CALL f%grid_subdomain_end(N, N)
+    CALL f%grid_subdomain_ext(N, N)
+    CALL f%grid_subdomain_off(0, 0)
+    CALL f%grid_domain_ext(N, N)
+!    call f%set_redist(1, 1, MPI_DOUBLE_PRECISION)
 
-    call f%add_command(c_funloc(allocate_variable), 1, 1)
-    call f%add_command(c_funloc(initialize_variable), 1, 1)
+    if (myid == 0) a(:,:) = 1.0e0
 
-    z = 0.0e0
-    call f%add_variable(z, 1, 1, 1, .true.)
+    CALL f%add_field(C_LOC(a), 1, 1, 1, .true.)
+
+!    allocate(z(1))
+!    call f%add_command(c_funloc(allocate_variable), 1, 1)
+!    call f%add_command(c_funloc(initialize_variable), 1, 1)
+!    z = 0.0e0
+!    call f%add_variable(z, 1, 1, 1, .true.)
 
     call f%start_concurrent(1)
-    if (.not. f%has_kernel_role()) then
-      z = 1.0e0
-      write(*,*) "Model procs print this string"
-      call f%exchange_m2k(1, 1)
-      call f%execute(1,1)
-    end if
+!    if (.not. f%has_kernel_role()) then
+!      z = 1.0e0
+!      write(*,*) "Model procs print this string"
+    call f%exchange_m2k(1, 1)
+!      call f%execute(1,1)
+!    end if
     call f%stop_concurrent(1)
 
-    write(*,*) "z = ", z
+!    write(*,*) "z = ", z
 
     call f%finalize
 

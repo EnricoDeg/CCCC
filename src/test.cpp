@@ -9,10 +9,36 @@ int main(int argc, char **argv)
 
   std::string s = "structured";
   std::shared_ptr<CCCC> ccm;
-  ccm.reset(new CCCC(MPI_COMM_WORLD, 2, s));
+  ccm.reset(new CCCC(MPI_COMM_WORLD, 1, s));
 
   ccm->intercomm_create(1, 1);
-  ccm->intercomm_create(2, 1);
+
+  int src_array_size[2] = {10,10};
+  int rank, size;
+  MPI_Comm_rank (MPI_COMM_WORLD, &rank);
+  MPI_Comm_size (MPI_COMM_WORLD, &size);
+
+  double * src_array = (double *)malloc((size_t)src_array_size[0]
+                              * (size_t)src_array_size[1] * sizeof(*src_array));
+
+  for (int i = 0; i < src_array_size[0] * src_array_size[1]; ++i)
+    src_array[i] = (double)rank;
+
+  ccm->grid_subdomain_start(1, 1);
+  ccm->grid_subdomain_end(10, 10);
+  ccm->grid_subdomain_ext(10, 10);
+  ccm->grid_subdomain_off(0, 0);
+  ccm->grid_domain_ext(10, 10);
+
+  ccm->set_redist(src_array,1, 1, MPI_DOUBLE);
+
+//  ccm->add_field(src_array, 1, 1, 1, true);
+
+  ccm->start_concurrent(1);
+
+//  ccm->exchange_m2k(1, 1);
+
+  ccm->stop_concurrent(1);
 
   ccm.reset();
 
