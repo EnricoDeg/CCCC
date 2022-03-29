@@ -11,8 +11,8 @@ then
   export CXX=icpc
   export FC=ifort
   export F77=ifort
-  export CFLAGS='-O0 -gxx-name=/sw/rhel6-x64/gcc/gcc-6.4.0/bin/g++ -gcc-name=/sw/rhel6-x64/gcc/gcc-6.4.0/bin/gcc'
-  export CXXFLAGS="-O0 -gxx-name=/sw/rhel6-x64/gcc/gcc-6.4.0/bin/g++ -gcc-name=/sw/rhel6-x64/gcc/gcc-6.4.0/bin/gcc"
+  export CFLAGS='-O0 -std=c++11 -gxx-name=/sw/rhel6-x64/gcc/gcc-6.4.0/bin/g++ -gcc-name=/sw/rhel6-x64/gcc/gcc-6.4.0/bin/gcc'
+  export CXXFLAGS="-O0 -std=c++11 -gxx-name=/sw/rhel6-x64/gcc/gcc-6.4.0/bin/g++ -gcc-name=/sw/rhel6-x64/gcc/gcc-6.4.0/bin/gcc"
   export FFLAGS="-O0"
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/sw/rhel6-x64/gcc/gcc-6.4.0/lib:/sw/rhel6-x64/gcc/gcc-6.4.0/lib64
 
