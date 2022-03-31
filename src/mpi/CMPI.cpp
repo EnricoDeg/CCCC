@@ -12,7 +12,7 @@ namespace DKRZ {
 
     }
 
-    void MPI::intercomm_create(int nmodel, int nprocs, std::vector<int> nprocs_all) {
+    MPI_Comm MPI::intercomm_create(int nmodel, int nprocs, std::vector<int> nprocs_all) {
 
         int lb = 0;
         for (int i = 0; i < nmodel; i++)
@@ -40,60 +40,52 @@ namespace DKRZ {
             MPI_Intercomm_create(local_comm, ilocal_root,
                                  m_glob_comm, iremote_root,
                                  0, &intercomm);
-            m_intercomm[nmodel] = intercomm;
             if (m_local_comm == MPI_COMM_NULL) {
                 m_local_comm = local_comm;
                 MPI_Comm_rank(m_local_comm, &m_local_rank);
             }
         }
+        return intercomm;
 
     }
 
-    int MPI::get_cmd(int nmodel) {
+    int MPI::get_cmd(MPI_Comm intercomm) {
         int i_cmd;
         MPI_Status stat;
         if (m_local_rank == 0) {
-            MPI_Recv(&i_cmd, 1, MPI_INT, 0, 0, m_intercomm[nmodel], &stat);
+            MPI_Recv(&i_cmd, 1, MPI_INT, 0, 0, intercomm, &stat);
         }
         MPI_Bcast(&i_cmd, 1, MPI_INT, 0, m_local_comm);
         return i_cmd;
     }
 
-    void MPI::send_cmd(int nmodel, int cmd) {
+    void MPI::send_cmd(int cmd, MPI_Comm intercomm) {
         if (m_local_rank == 0) {
-            MPI_Send(&cmd, 1, MPI_INT, 0, 0, m_intercomm[nmodel]);
+            MPI_Send(&cmd, 1, MPI_INT, 0, 0, intercomm);
         }
     }
 
-    void MPI::send(int nmodel, double *data, int count) {
+    void MPI::send(int nmodel, double *data, int count, MPI_Comm intercomm) {
         if (m_local_rank == 0) {
-            MPI_Send(data, count, MPI_DOUBLE, 0, 0, m_intercomm[nmodel]);
+            MPI_Send(data, count, MPI_DOUBLE, 0, 0, intercomm);
         }
     }
 
-    void MPI::recv(int nmodel, double *data, int count) {
+    void MPI::recv(int nmodel, double *data, int count, MPI_Comm intercomm) {
         if (m_local_rank == 0) {
             MPI_Status stat;
-            MPI_Recv(data, count, MPI_DOUBLE, 0, 0, m_intercomm[nmodel], &stat);
+            MPI_Recv(data, count, MPI_DOUBLE, 0, 0, intercomm, &stat);
         }
         MPI_Bcast(&data, count, MPI_DOUBLE, 0, m_local_comm);
     }
 
-    void MPI::exchange(double *data, int size, bool sender, int nmodel) {
+    void MPI::exchange(double *data, int size, bool sender, MPI_Comm intercomm) {
         if (sender) {
-            MPI_Send(data, size, MPI_DOUBLE, m_local_rank, 0, m_intercomm[nmodel]);
+            MPI_Send(data, size, MPI_DOUBLE, m_local_rank, 0, intercomm);
         } else {
             MPI_Status stat;
-            MPI_Recv(data, size, MPI_DOUBLE, m_local_rank, 0, m_intercomm[nmodel], &stat);
+            MPI_Recv(data, size, MPI_DOUBLE, m_local_rank, 0, intercomm, &stat);
         }
-    }
-
-    MPI_Comm MPI::intercomm(int i) {
-        return m_intercomm[i];
-    }
-
-    std::map<int,MPI_Comm> MPI::intercomm() {
-        return m_intercomm;
     }
 
     int MPI::mymodel() {
