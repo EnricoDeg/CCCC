@@ -61,18 +61,18 @@ program test
 
     integer, parameter :: dp = selected_real_kind(15)
     type(cccc) :: f
-    integer i, ierr;
+    integer ierr;
     character(len=100) :: backend
     double precision, target, allocatable, dimension(:,:) :: aaa
     double precision, target, allocatable, dimension(:,:,:) :: bbb
     real(dp), target, allocatable, dimension(:) :: z
-    integer :: myid, t
+    integer :: myid, t, i, j, k
     integer, parameter :: ND = 10
     integer, parameter :: SL = 1 ! surface level
     integer, parameter :: VL = 2 ! vertical levels
     integer, parameter :: VAR_KERNEL = 1 ! VAR kernel ID
-    integer, parameter :: NPROCS_MAIN = 1 ! MPI tasks model
-    integer, parameter :: NPROCS_VAR_KERNEL = 1 ! MPI tasks VAR kernel
+    integer, parameter :: NPROCS_MAIN = 2 ! MPI tasks model
+    integer, parameter :: NPROCS_VAR_KERNEL = 2 ! MPI tasks VAR kernel
     integer, parameter :: CMD_INIT_ID = 1
     integer, parameter :: CMD_COMP_ID = 2
     integer, parameter :: CMD_FIN_ID  = 3
@@ -107,7 +107,7 @@ program test
     ! add commands
     call f%add_command(c_funloc(allocate_variable)  , VAR_KERNEL, CMD_INIT_ID)
     call f%add_command(c_funloc(initialize_variable), VAR_KERNEL, CMD_INIT_ID)
-    call f%add_command(c_funloc(compute_variable)  , VAR_KERNEL, CMD_COMP_ID)
+    call f%add_command(c_funloc(compute_variable)   , VAR_KERNEL, CMD_COMP_ID)
     call f%add_command(c_funloc(deallocate_variable), VAR_KERNEL, CMD_FIN_ID )
 
     ! add variables
@@ -119,8 +119,19 @@ program test
       ! variables and fields modified during main model time loop and used 
       ! as input for the kernel duyring each time step
       z = 1.0e0
-      aaa(:,:) = 1.0e0
-      bbb(:,:,:) = 2.0e0
+      do j = 1,ND
+        do i = 1,ND
+          aaa(i,j) = 1.0e0 * i * j * (myid + 1)
+        end do
+      end do
+      do k = 1,VL
+        do j = 1,ND
+          do i = 1,ND
+            bbb(i,j,k) = 2.0e0 * i * j * k * (myid + 1)
+          end do
+        end do
+      end do
+
       ! initialize the kernel (fields only allocated on kernel procs)
       call f%execute(VAR_KERNEL, CMD_INIT_ID)
       ! Time loop
