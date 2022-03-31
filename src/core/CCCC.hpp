@@ -2,55 +2,13 @@
 #include <map>
 
 #include "CCCC/grid/Grid.hpp"
-#include "CCCC/mpi/CMPI.hpp"
+#include "CCCC/core/Component.hpp"
 
 #define CCCC_CMD_EXIT -1
 #define CCCC_K2M -2
 #define CCCC_M2K -3
 
 namespace DKRZ {
-
-  typedef void (*fPtr)();
-
-  //! C structure for a single field
-  /*!
-    \param data pointer to the field data
-    \param redist pointer to the YAXT redistribution
-    \param size size of the field
-    \param exchange_id exchange ID
-    \param m2k exchange direction
-  */
-  struct FieldType {
-    double *data;
-    Xt_redist *redist;
-    int exchange_id;
-    int size;
-    bool m2k;
-  };
-
-  //! C structure for a single variable
-  /*!
-    \param data pointer to the variable data
-    \param count allocated size for the variable
-    \param exchange_id exchange ID
-    \param m2k exchange direction
-  */
-  struct VariableType {
-    double *data;
-    int count;
-    int exchange_id;
-    bool m2k;
-  };
-
-  //! C structure for a single command
-  /*!
-    \param cmd pointer to the function (command) to be executed
-    \param cmd_id command ID
-  */
-  struct CmdType {
-    fPtr cmd;
-    int cmd_id;
-  };
 
   //!  library main class
   /*!
@@ -221,20 +179,11 @@ namespace DKRZ {
         std::vector<int> m_nprocs;
         // map of all the redistribution
         std::map<int,YaxtRedist> m_redist;
-        // map of vectors to exchange on every stream
-        std::map<int,std::vector<FieldType>> m_fields;
-        // map of variables to exchange on every stream
-        std::map<int,std::vector<VariableType>> m_variables;
-        // map of vector to execute commands on every stream
-        std::map<int,std::vector<CmdType>> m_cmds;
+        // map of components obj
+        std::map<int,Component::Ptr> m_components;
 
         // Functions
         void remote_loop(int nmodel);
-        void exchange_m2k_impl(int nmodel, int id);
-        void exchange_k2m_impl(int nmodel, int id);
-        void send_data(int nmodel, int id, bool cond);
-        void recv_data(int nmodel, int id, bool cond);
-        void exchange_field_yaxt(int nmodel, int id, bool cond);
-        void exchange_field_mpi(int nmodel, int id, bool cond);
+        void full_exchange(int nmodel, int id, bool cond);
   };
 }

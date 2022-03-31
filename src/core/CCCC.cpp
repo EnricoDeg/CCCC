@@ -65,8 +65,10 @@ namespace DKRZ {
         if ( nmodel <= 0)
             handle_error("kernels ID must be positive in intrercomm_create() function");
         m_nprocs.push_back(nprocs);
-        m_mpi->intercomm_create(nmodel, nprocs, m_nprocs);
-        m_yaxt->set_mr_intercomm(m_mpi->intercomm());
+        MPI_Comm intercomm = m_mpi->intercomm_create(nmodel, nprocs, m_nprocs);
+        //m_yaxt->set_mr_intercomm();
+        // create component obj
+        m_components.emplace(nmodel, new Component(intercomm, m_yaxt, m_mpi));
     }
 
     // set grid info
@@ -95,173 +97,112 @@ namespace DKRZ {
         m_redist[nlv] = m_grid->set_yaxt_redist(nmodel, nlv, m_kernel_role);
     }
 
-    // Add fields, variables and commands to each model
+    // [[[INTERFACE]]] Add fields, variables and commands to each model
     void CCCC::add_field(double *data, int nlv, int nmodel, int id, bool m2k) {
-        FieldType f;
-        f.data = data;
+        if (m_kernel_role && nmodel != m_mpi->mymodel())
+            return;
+        Xt_redist *rds;
         if (m2k == true) {
-            f.redist = &(m_redist[nlv].redist_m2k);
+            rds = &(m_redist[nlv].redist_m2k);
         } else {
-            f.redist = &(m_redist[nlv].redist_k2m);
+            rds = &(m_redist[nlv].redist_k2m);
         }
-        f.exchange_id = id;
-        f.size = m_grid->get_size() * nlv;
-        f.m2k = m2k;
-        m_fields[nmodel].push_back(f);
+        m_components[nmodel]->add_field_impl(data, rds, m_grid->get_size() * nlv, 
+                                            id, m2k);
     }
 
+    // [[[INTERFACE]]]
     void CCCC::add_variable(double *data, int count, int nmodel, int id, bool m2k) {
+        if (m_kernel_role && nmodel != m_mpi->mymodel())
+            return;
         if (count <= 0)
             handle_error("count must be a positive integer in add_variable() function");
-        VariableType f;
-        f.data = data;
-        f.count = count;
-        f.exchange_id = id;
-        f.m2k = m2k;
-        m_variables[nmodel].push_back(f);
+        m_components[nmodel]->add_variable_impl(data, count, id, m2k);
     }
 
+    // [[[INTERFACE]]]
     void CCCC::add_command(void (*Func_ptr) (), int nmodel, int cmd_id) {
+        if (m_kernel_role && nmodel != m_mpi->mymodel())
+            return;
         if (cmd_id < 0)
             handle_error("command ID can not be negative in add_command() function");
-        CmdType c;
-        c.cmd = Func_ptr;
-        c.cmd_id = cmd_id;
-        m_cmds[nmodel].push_back(c);
+        m_components[nmodel]->add_command_impl(Func_ptr, cmd_id);
     }
 
-    // Start and stop concurrent execution
+    // [[[INTERFACE]]] kernel procs start concurrent execution going into an
+    // infinite loop and waiting for instructions
     void CCCC::start_concurrent(int nmodel) {
+        // Any procs can call this interface but model procs return and also
+        // procs of different targeted kernel
         if (m_kernel_role) {
-          remote_loop(nmodel);
+            if (nmodel != m_mpi->mymodel())
+                return;
+            m_components[nmodel]->remote_loop_impl();
         }
     }
 
+    // [[[INTERFACE]]] model send command to kernel to stop (exit infinite loop)
     void CCCC::stop_concurrent(int nmodel) {
-        if (!m_kernel_role) {
-          m_mpi->send_cmd(nmodel, CCCC_CMD_EXIT);
-        }
+        // Any procs can call this interface but only model procs do sth
+        if (!m_kernel_role)
+            m_components[nmodel]->send_cmd(CCCC_CMD_EXIT);
     }
 
-    void CCCC::remote_loop(int nmodel) {
-        if (nmodel != m_mpi->mymodel())
-            return;
-        int i_cmd = m_mpi->get_cmd(nmodel);
-        std::cout << "Remote loop starts" << std::endl;
-        int id;
-        while (i_cmd != CCCC_CMD_EXIT) {
-            switch(i_cmd) {
-                case(CCCC_K2M):
-                    id = m_mpi->get_cmd(nmodel);
-                    exchange_k2m_impl(nmodel, id);
-                    break;
-                case(CCCC_M2K):
-                    id = m_mpi->get_cmd(nmodel);
-                    exchange_m2k_impl(nmodel,id);
-                    break;
-                default:
-                    for (auto stream_cmds : m_cmds[nmodel]) {
-                        if (stream_cmds.cmd_id == i_cmd) {
-                            stream_cmds.cmd(); // execute command with received ID
-                        }  
-                    }
-                    break;
-            }
-            i_cmd = m_mpi->get_cmd(nmodel);
-        }
-    }
-
-    // Exchange fields and variables between model and kernels
+    // [[[INTERFACE]]] Exchange fields and variables between model and kernels
     void CCCC::exchange_k2m(int nmodel, int id) {
+        // only the main model can trigger and exchange in both directions
         if (!m_kernel_role) {
-            m_mpi->send_cmd(nmodel, CCCC_K2M);
-            m_mpi->send_cmd(nmodel, id);
-            exchange_k2m_impl(nmodel, id);
+            m_components[nmodel]->send_cmd(CCCC_K2M);
+            m_components[nmodel]->send_cmd(id);
+            full_exchange(nmodel, id, false);
         } else {
             handle_error("kernels procs should not call exchange_k2m() function");
         }
     }
 
-    void CCCC::exchange_k2m_impl(int nmodel, int id) {
-        if (m_kernel_role) {
-            send_data(nmodel, id, false);
-        } else {
-            recv_data(nmodel, id, false);
-        }
-        exchange_field_mpi(nmodel, id, false);
-    }
-
+    // [[[INTERFACE]]]
     void CCCC::exchange_m2k(int nmodel, int id) {
         if (!m_kernel_role) {
-            m_mpi->send_cmd(nmodel, CCCC_M2K);
-            m_mpi->send_cmd(nmodel, id);
-            exchange_m2k_impl(nmodel, id);
+            m_components[nmodel]->send_cmd(CCCC_M2K);
+            m_components[nmodel]->send_cmd(id);
+            full_exchange(nmodel, id, true);
         } else {
             handle_error("kernels procs should not call exchange_m2k() function");
         }
     }
 
-    void CCCC::exchange_m2k_impl(int nmodel, int id) {
-        if (m_kernel_role) {
-            recv_data(nmodel, id, true);
-        } else {
-            send_data(nmodel, id, true);
-        }
-        exchange_field_mpi(nmodel, id, true);
-    }
-
-    void CCCC::send_data(int nmodel, int id, bool cond) {
-        for (auto variable : m_variables[nmodel]) {
-            if (variable.m2k == cond && variable.exchange_id == id) {
-                m_mpi->send(nmodel, variable.data, variable.count);
-            }
-        }
-    }
-
-    void CCCC::recv_data(int nmodel, int id, bool cond) {
-        for (auto variable : m_variables[nmodel]) {
-            if (variable.m2k == cond && variable.exchange_id == id) {
-                m_mpi->recv(nmodel, variable.data, variable.count);
-            }
-        }
-    }
-
-    void CCCC::exchange_field_yaxt(int nmodel, int id, bool cond) {
-        for (auto field : m_fields[nmodel]) {
-            if (field.m2k == cond && field.exchange_id == id) {
-                m_yaxt->exchange(*(field.redist), field.data);
-            }
-        }
-    }
-
-    void CCCC::exchange_field_mpi(int nmodel, int id, bool cond) {
-        bool sender;
-
-        if (cond) { // m2k
-            if (m_kernel_role) {
-                sender = false; // kernel recv data
-            } else {
-                sender = true; // model send data
-            }
-        } else { //k2m
-            if (m_kernel_role) {
-                sender = true; // kernel send data
-            } else {
-                sender = false; // model recv data
-            }
-        }
-
-        for (auto field : m_fields[nmodel]) {
-            if (field.m2k == cond && field.exchange_id == id) {
-                m_mpi->exchange(field.data, field.size, sender, nmodel);
-            }
-        }
-    }
-
-    // Execute commands labeled with an ID for a model
-    void CCCC::execute(int nmodel, int cmd_id) {
+    // full exchange (variables and fields) 
+    void CCCC::full_exchange(int nmodel, int id, bool cond) {
         if (!m_kernel_role) {
-            m_mpi->send_cmd(nmodel, cmd_id);
+            bool sender;
+
+            if (cond) { // m2k
+                if (m_kernel_role) {
+                    sender = false; // kernel recv data
+                } else {
+                    sender = true; // model send data
+                }
+            } else { //k2m
+                if (m_kernel_role) {
+                    sender = true; // kernel send data
+                } else {
+                    sender = false; // model recv data
+                }
+            }
+
+            m_components[nmodel]->exchange_variable_mpi_impl(id, cond, sender);
+            m_components[nmodel]->exchange_field_mpi_impl(id, cond, sender);
+            //m_components[nmodel]->exchange_field_yaxt_impl(id, cond);
+        } else {
+            handle_error("kernels procs should not call full_exchange() function");
+        }
+    }
+
+    // [[[INTERFACE]]] Execute commands labeled with an ID for a model
+    void CCCC::execute(int nmodel, int cmd_id) {
+        // only the main model can send commands to single kernels
+        if (!m_kernel_role) {
+            m_components[nmodel]->send_cmd(cmd_id);
         } else {
             handle_error("kernels procs should not call execute() function");
         }
