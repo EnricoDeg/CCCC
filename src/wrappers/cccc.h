@@ -41,7 +41,9 @@ bool CCCC_has_kernel_role(CCCCt* cccc);
 void CCCC_add_field(CCCCt* cccc, double *data, int nlv, int nmodel, int id, int m2k);
 
 // add variable to a stream
-void CCCC_add_variable(CCCCt* cccc, double *data, int count, int nmodel, int id, int m2k);
+void CCCC_add_variable_double(CCCCt* cccc, double *data, int count, int nmodel, int id, int m2k);
+void CCCC_add_variable_float(CCCCt* cccc, float *data, int count, int nmodel, int id, int m2k);
+void CCCC_add_variable_int(CCCCt* cccc, int *data, int count, int nmodel, int id, int m2k);
 
 // send fields and variables to model
 void CCCC_exchange_k2m(CCCCt* cccc, int nmodel, int id);

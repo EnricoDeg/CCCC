@@ -79,7 +79,7 @@ interface
         integer(c_int), value :: m2k
     end subroutine CCCC_add_field_c
 
-    subroutine CCCC_add_variable_c(cccc, data, count, nmodel, id, m2k) bind(C, name='CCCC_add_variable')
+    subroutine CCCC_add_variable_double_c(cccc, data, count, nmodel, id, m2k) bind(C, name='CCCC_add_variable_double')
         use iso_c_binding
         implicit none
         type(c_ptr), value :: cccc
@@ -88,7 +88,29 @@ interface
         integer(c_int), value :: nmodel
         integer(c_int), value :: id
         integer(c_int), value :: m2k
-    end subroutine CCCC_add_variable_c
+    end subroutine CCCC_add_variable_double_c
+
+    subroutine CCCC_add_variable_float_c(cccc, data, count, nmodel, id, m2k) bind(C, name='CCCC_add_variable_float')
+        use iso_c_binding
+        implicit none
+        type(c_ptr), value :: cccc
+        real(c_float) , dimension(*), intent(inout) :: data
+        integer(c_int), value :: count
+        integer(c_int), value :: nmodel
+        integer(c_int), value :: id
+        integer(c_int), value :: m2k
+    end subroutine CCCC_add_variable_float_c
+
+    subroutine CCCC_add_variable_int_c(cccc, data, count, nmodel, id, m2k) bind(C, name='CCCC_add_variable_int')
+        use iso_c_binding
+        implicit none
+        type(c_ptr), value :: cccc
+        integer(c_int), dimension(*), intent(inout) :: data
+        integer(c_int), value :: count
+        integer(c_int), value :: nmodel
+        integer(c_int), value :: id
+        integer(c_int), value :: m2k
+    end subroutine CCCC_add_variable_int_c
 
     subroutine CCCC_exchange_k2m_c(cccc, nmodel, id) bind(C, name='CCCC_exchange_k2m')
         use iso_c_binding

@@ -79,11 +79,25 @@ namespace DKRZ {
         return cccc->add_field(data, nlv, nmodel, id, cond);
     }
     
-    void CCCC_add_variable(CCCCt* cccc, double *data, int count, int nmodel, int id, int m2k) {
+    void CCCC_add_variable_double(CCCCt* cccc, double *data, int count, int nmodel, int id, int m2k) {
         bool cond = true;
         std::cout << "C API, CCCC_add_variable" << std::endl;
         if (m2k == 0) cond = false;
-        return cccc->add_variable(data, count, nmodel, id, cond);
+        return cccc->add_variable<double>(data, count, nmodel, id, cond);
+    }
+
+    void CCCC_add_variable_float(CCCCt* cccc, float *data, int count, int nmodel, int id, int m2k) {
+        bool cond = true;
+        std::cout << "C API, CCCC_add_variable" << std::endl;
+        if (m2k == 0) cond = false;
+        return cccc->add_variable<float>(data, count, nmodel, id, cond);
+    }
+
+    void CCCC_add_variable_int(CCCCt* cccc, int *data, int count, int nmodel, int id, int m2k) {
+        bool cond = true;
+        std::cout << "C API, CCCC_add_variable" << std::endl;
+        if (m2k == 0) cond = false;
+        return cccc->add_variable<int>(data, count, nmodel, id, cond);
     }
     
     void CCCC_exchange_k2m(CCCCt* cccc, int nmodel, int id) {
