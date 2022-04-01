@@ -49,6 +49,10 @@ namespace DKRZ {
 
     }
 
+    void MPI::get_mpi_datatype(int typeclass, int size, MPI_Datatype * tmpi) {
+        MPI_Type_match_size(typeclass, size, tmpi);
+    }
+
     int MPI::get_cmd(MPI_Comm intercomm) {
         int i_cmd;
         MPI_Status stat;
@@ -79,14 +83,19 @@ namespace DKRZ {
         MPI_Bcast(&data, count, MPI_DOUBLE, 0, m_local_comm);
     }
 
-    void MPI::exchange(double *data, int size, bool sender, MPI_Comm intercomm) {
+    template <typename T>
+    void MPI::exchange(T *data, int size, bool sender, MPI_Datatype Tmpi, MPI_Comm intercomm) {
         if (sender) {
-            MPI_Send(data, size, MPI_DOUBLE, m_local_rank, 0, intercomm);
+            MPI_Send(data, size, Tmpi, m_local_rank, 0, intercomm);
         } else {
             MPI_Status stat;
-            MPI_Recv(data, size, MPI_DOUBLE, m_local_rank, 0, intercomm, &stat);
+            MPI_Recv(data, size, Tmpi, m_local_rank, 0, intercomm, &stat);
         }
     }
+
+    template void MPI::exchange(double *, int, bool, MPI_Datatype, MPI_Comm);
+    template void MPI::exchange(float *, int, bool, MPI_Datatype, MPI_Comm);
+    template void MPI::exchange(int *, int, bool, MPI_Datatype, MPI_Comm);
 
     int MPI::mymodel() {
         return m_mymodel;

@@ -16,11 +16,13 @@ namespace DKRZ {
     	MPI(MPI_Comm glob);
     	~MPI();
         MPI_Comm intercomm_create(int nmodel, int nprocs, std::vector<int> nprocs_all);
+        void get_mpi_datatype(int typeclass, int size, MPI_Datatype * tmpi);
         int get_cmd(MPI_Comm intercomm);
         void send_cmd(int cmd, MPI_Comm intercomm);
         void send(int nmodel, double *data, int count, MPI_Comm intercomm);
         void recv(int nmodel, double *data, int count, MPI_Comm intercomm);
-        void exchange(double *data, int size, bool sender, MPI_Comm intercomm);
+        template <typename T>
+        void exchange(T *data, int size, bool sender, MPI_Datatype Tmpi, MPI_Comm intercomm);
         int mymodel();
         MPI_Comm local_comm();
 
