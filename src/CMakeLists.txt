@@ -24,6 +24,7 @@ set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/modules)
 
 set(SOURCE_EXE  yaxt/Yaxt.cpp
                 mpi/CMPI.cpp
+                data/Variable.cpp
                 core/CCCC.cpp
                 core/Component.cpp
                 core/Error.cpp
