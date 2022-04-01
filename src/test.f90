@@ -66,6 +66,7 @@ program test
     double precision, target, allocatable, dimension(:,:) :: aaa
     double precision, target, allocatable, dimension(:,:,:) :: bbb
     real(dp), target, allocatable, dimension(:) :: z
+    integer , target, allocatable, dimension(:) :: w
     integer :: myid, t, i, j, k
     integer, parameter :: ND = 10
     integer, parameter :: SL = 1 ! surface level
@@ -101,8 +102,9 @@ program test
     CALL f%add_field(bbb, VL, VAR_KERNEL, EXG_ID, .true.) ! .true. means m2k
 
     ! variable allocated and initialized
-    allocate(z(1))
+    allocate(z(1), w(1))
     z = 0.0e0
+    w = -1
 
     ! add commands
     call f%add_command(c_funloc(allocate_variable)  , VAR_KERNEL, CMD_INIT_ID)
@@ -112,6 +114,7 @@ program test
 
     ! add variables
     call f%add_variable(z, SIZE(z), VAR_KERNEL, 1, .true.) ! .true. means m2k
+    call f%add_variable(w, SIZE(w), VAR_KERNEL, 1, .true.) ! .true. means m2k
 
     ! CONCURRENT EXECUTION BEGIN
     call f%start_concurrent(VAR_KERNEL)
@@ -119,6 +122,7 @@ program test
       ! variables and fields modified during main model time loop and used 
       ! as input for the kernel duyring each time step
       z = 1.0e0
+      w = 0
       do j = 1,ND
         do i = 1,ND
           aaa(i,j) = 1.0e0 * i * j * (myid + 1)
@@ -141,6 +145,7 @@ program test
         aaa = aaa + t
         bbb = bbb + 2 * t
         z   = z   + t / 2.0e0
+        w   = w   - t
       end do
       call f%execute(VAR_KERNEL, CMD_FIN_ID)
     end if
