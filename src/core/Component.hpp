@@ -2,7 +2,7 @@
 #include <map>
 
 #include "CCCC/grid/Grid.hpp"
-#include "CCCC/mpi/CMPI.hpp"
+#include "CCCC/data/Variable.hpp"
 
 #define CCCC_CMD_EXIT -1
 #define CCCC_K2M -2
@@ -34,11 +34,11 @@ namespace DKRZ {
     \param exchange_id exchange ID
     \param m2k exchange direction
   */
-  struct VariableType {
-    double *data;
-    int count;
-    bool m2k;
-  };
+//  struct VariableType {
+//    double *data;
+//    int count;
+//    bool m2k;
+//  };
 
   //! C structure for a single command
   /*!
@@ -60,7 +60,7 @@ namespace DKRZ {
         Component(MPI_Comm intercomm, Yaxt::Ptr yaxtp, MPI::Ptr mpip);
         ~Component();
         void add_field_impl(double *data, Xt_redist * rds, int size, int id, bool m2k);
-        void add_variable_impl(double *data, int count, int id, bool m2k);
+        template <typename T> void add_variable_impl(T *data, int count, int id, bool m2k);
         void add_command_impl(void (*Func_ptr) (), int cmd_id);
         void exchange_field_yaxt_impl(int id, bool cond);
         void exchange_variable_mpi_impl(int id, bool cond, bool sender);
@@ -92,7 +92,7 @@ namespace DKRZ {
         // map of fields
         std::map<int,std::vector<FieldType>> m_fields;
         // map of variables
-        std::map<int,std::vector<VariableType>> m_variables;
+        std::map<int,std::vector<VariableBase *>> m_variables;
         // map of commands
         std::map<int,std::vector<CmdType>> m_cmds;
 

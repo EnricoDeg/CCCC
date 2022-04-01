@@ -34,24 +34,24 @@ namespace DKRZ {
     void Component::exchange_field_mpi_impl(int id, bool cond, bool sender) {
         for (auto field : m_fields[id]) {
             if (field.m2k == cond) {
-                m_mpi->exchange(field.data, field.size, sender, m_intercomm);
+                m_mpi->exchange<double>(field.data, field.size, sender, MPI_DOUBLE, m_intercomm);
             }
         }
     }
 
-    void Component::add_variable_impl(double *data, int count, int id, bool m2k) {
-        VariableType f;
-        f.data = data;
-        f.count = count;
-        f.m2k = m2k;
-        m_variables[id].push_back(f);
+    template <typename T>
+    void Component::add_variable_impl(T *data, int count, int id, bool m2k) {
+        VariableBase * v = new Variable<T>(m_mpi, data, count, m2k);
+        m_variables[id].push_back(v);
     }
+
+    template void Component::add_variable_impl<double>(double *, int , int, bool);
+    template void Component::add_variable_impl<float>(float *, int , int, bool);
+    template void Component::add_variable_impl<int>(int *, int , int, bool);
 
     void Component::exchange_variable_mpi_impl(int id, bool cond, bool sender) {
         for (auto variable : m_variables[id]) {
-            if (variable.m2k == cond) {
-                m_mpi->exchange(variable.data, variable.count, sender, m_intercomm);
-            }
+            variable->exchange(cond, sender, m_intercomm);
         }
     }
 
