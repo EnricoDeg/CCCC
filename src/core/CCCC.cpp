@@ -112,13 +112,17 @@ namespace DKRZ {
     }
 
     // [[[INTERFACE]]]
-    void CCCC::add_variable(double *data, int count, int nmodel, int id, bool m2k) {
+    template <typename T>
+    void CCCC::add_variable(T *data, int count, int nmodel, int id, bool m2k) {
         if (m_kernel_role && nmodel != m_mpi->mymodel())
             return;
         if (count <= 0)
             handle_error("count must be a positive integer in add_variable() function");
-        m_components[nmodel]->add_variable_impl(data, count, id, m2k);
+        m_components[nmodel]->add_variable_impl<T>(data, count, id, m2k);
     }
+    template void CCCC::add_variable<double>(double *, int, int, int, bool);
+    template void CCCC::add_variable<float>(float *, int, int, int, bool);
+    template void CCCC::add_variable<int>(int *, int, int, int, bool);
 
     // [[[INTERFACE]]]
     void CCCC::add_command(void (*Func_ptr) (), int nmodel, int cmd_id) {

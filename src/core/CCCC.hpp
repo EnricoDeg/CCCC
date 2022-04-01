@@ -95,7 +95,8 @@ namespace DKRZ {
           \param id exchange ID
           \param m2k exchange direction
         */
-        void add_variable(double *data, int count, int nmodel, int id, bool m2k);
+        template <typename T>
+        void add_variable(T *data, int count, int nmodel, int id, bool m2k);
 
         //!
         /*!
